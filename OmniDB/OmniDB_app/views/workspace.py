@@ -558,8 +558,10 @@ def start_edit_data(request, v_database):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
-    v_table          = json_object['p_table']
-    v_schema         = json_object['p_schema']
+    v_table = json_object['p_table']
+
+    if v_database.v_has_schema:
+        v_schema = json_object['p_schema']
 
     v_return['v_data'] = {
         'v_pk' : [],
@@ -568,16 +570,22 @@ def start_edit_data(request, v_database):
     }
 
     try:
-        v_pk = v_database.QueryTablesPrimaryKeys (v_table,False,v_schema)
         if v_database.v_has_schema:
+            v_pk = v_database.QueryTablesPrimaryKeys(v_table, False, v_schema)
             v_table_name = v_schema + '.' + v_table
+            v_columns = v_database.QueryTablesFields(v_table, False, v_schema)
         else:
+            v_pk = v_database.QueryTablesPrimaryKeys(v_table)
             v_table_name = v_table
-        v_columns = v_database.QueryTablesFields(v_table,False,v_schema)
+            v_columns = v_database.QueryTablesFields(v_table)
 
         v_pk_cols = None
         if v_pk != None and len(v_pk.Rows) > 0:
-            v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
+            if v_database.v_has_schema:
+                v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
+            else:
+                v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_table)
+            
             v_return['v_data']['v_ini_orderby'] = 'ORDER BY '
             v_first = True
             for v_pk_col in v_pk_cols.Rows:

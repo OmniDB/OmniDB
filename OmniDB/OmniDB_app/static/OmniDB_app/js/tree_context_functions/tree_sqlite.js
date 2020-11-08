@@ -65,10 +65,7 @@ function getTreeSqlite(p_div) {
                 action: function(node) {
                     tabSQLTemplate(
                         'Create Table',
-                        node.tree.tag.create_table.replace(
-                            '#schema_name#',
-                            node.tag.schema
-                        )
+                        node.tree.tag.create_table
                     );
                 }
             }, {
@@ -104,7 +101,6 @@ function getTreeSqlite(p_div) {
                         icon: 'fas cm-all fa-search',
                         action: function(node) {
                             TemplateSelectSqlite(
-                                node.tag.schema,
                                 node.text,
                                 't'
                             );
@@ -114,8 +110,7 @@ function getTreeSqlite(p_div) {
                         icon: 'fas cm-all fa-table',
                         action: function(node) {
                             v_startEditData(
-                                node.text,
-                                node.tag.schema
+                                node.text
                             );
                         }
                     }, {
@@ -123,7 +118,6 @@ function getTreeSqlite(p_div) {
                         icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             TemplateInsertSqlite(
-                                node.tag.schema,
                                 node.text
                             );
                         }
@@ -132,7 +126,6 @@ function getTreeSqlite(p_div) {
                         icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             TemplateUpdateSqlite(
-                                node.tag.schema,
                                 node.text
                             );
                         }
@@ -144,21 +137,9 @@ function getTreeSqlite(p_div) {
                               'Delete Records',
                               node.tree.tag.delete.replace(
                                   '#table_name#',
-                                  node.tag.schema + '.' + node.text
+                                  node.text
                               )
                           );
-                        }
-                    }, {
-                        text: 'Truncate Table',
-                        icon: 'fas cm-all fa-cut',
-                        action: function(node) {
-                            tabSQLTemplate(
-                                'Truncate Table',
-                                node.tree.tag.truncate.replace(
-                                    '#table_name#',
-                                    node.tag.schema + '.' + node.text
-                                )
-                            );
                         }
                     }]
                 }
@@ -174,7 +155,7 @@ function getTreeSqlite(p_div) {
                                 'Alter Table',
                                 node.tree.tag.alter_table.replace(
                                     '#table_name#',
-                                    node.tag.schema + '.' + node.text
+                                    node.text
                                 )
                             );
                         }
@@ -186,7 +167,7 @@ function getTreeSqlite(p_div) {
                                 'Drop Table',
                                 node.tree.tag.drop_table.replace(
                                     '#table_name#',
-                                    node.tag.schema + '.' + node.text
+                                    node.text
                                 )
                             );
                         }
@@ -203,7 +184,7 @@ function getTreeSqlite(p_div) {
                         'Create Column',
                         node.tree.tag.create_column.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.text
+                            node.parent.text
                         )
                     );
                 }
@@ -218,7 +199,7 @@ function getTreeSqlite(p_div) {
                         'Alter Column',
                         node.tree.tag.alter_column.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.parent.text
+                            node.parent.parent.text
                         ).replace(
                             /#column_name#/g,
                             node.text
@@ -233,7 +214,7 @@ function getTreeSqlite(p_div) {
                         'Drop Column',
                         node.tree.tag.drop_column.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.parent.text
+                            node.parent.parent.text
                         ).replace(
                             /#column_name#/g,
                             node.text
@@ -263,7 +244,7 @@ function getTreeSqlite(p_div) {
                         'Create Primary Key',
                         node.tree.tag.create_primarykey.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.text
+                            node.parent.text
                         )
                     );
                 }
@@ -290,7 +271,7 @@ function getTreeSqlite(p_div) {
                         'Drop Primary Key',
                         node.tree.tag.drop_primarykey.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.parent.text
+                            node.parent.parent.text
                         ).replace(
                             '#constraint_name#',
                             node.text
@@ -320,7 +301,7 @@ function getTreeSqlite(p_div) {
                         'Create Foreign Key',
                         node.tree.tag.create_foreignkey.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.text
+                            node.parent.text
                         )
                     );
                 }
@@ -346,7 +327,7 @@ function getTreeSqlite(p_div) {
                     tabSQLTemplate(
                         'Drop Foreign Key', node.tree.tag.drop_foreignkey.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.parent.text
+                            node.parent.parent.text
                         ).replace(
                             '#constraint_name#',
                             node.text
@@ -376,7 +357,7 @@ function getTreeSqlite(p_div) {
                         'Create Unique',
                         node.tree.tag.create_unique.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.text
+                            node.parent.text
                         )
                     );
                 }
@@ -403,7 +384,7 @@ function getTreeSqlite(p_div) {
                         'Drop Unique',
                         node.tree.tag.drop_unique.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.parent.text
+                            node.parent.parent.text
                         ).replace(
                             '#constraint_name#',
                             node.text
@@ -433,7 +414,7 @@ function getTreeSqlite(p_div) {
                         'Create Index',
                         node.tree.tag.create_index.replace(
                             '#table_name#',
-                            node.tag.schema + '.' + node.parent.text
+                            node.parent.text
                         )
                     );
                 }
@@ -470,7 +451,7 @@ function getTreeSqlite(p_div) {
                         'Alter Index',
                         node.tree.tag.alter_index.replace(
                             '#index_name#',
-                            node.tag.schema + '.' + node.text.replace(
+                            node.text.replace(
                                 ' (Unique)',
                                 ''
                             ).replace(
@@ -488,7 +469,7 @@ function getTreeSqlite(p_div) {
                         'Reindex',
                         node.tree.tag.reindex.replace(
                             '#index_name#',
-                            node.tag.schema + '.' + node.text.replace(
+                            node.text.replace(
                                 ' (Unique)',
                                 ''
                             ).replace(
@@ -506,7 +487,7 @@ function getTreeSqlite(p_div) {
                         'Drop Index',
                         node.tree.tag.drop_index.replace(
                             '#index_name#',
-                            node.tag.schema + '.' + node.text.replace(
+                            node.text.replace(
                                 ' (Unique)',
                                 ''
                             ).replace(
@@ -518,13 +499,14 @@ function getTreeSqlite(p_div) {
                 }
             }]
         },
-        /*'cm_triggers': {
+        'cm_triggers': {
             elements: [{
                 text: 'Refresh',
                 icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
-                    if (node.childNodes == 0)
+                    if (node.childNodes == 0) {
                         refreshTreeSqlite(node);
+                    }
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -534,10 +516,13 @@ function getTreeSqlite(p_div) {
                 text: 'Create Trigger',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
-                    tabSQLTemplate('Create Trigger', node.tree.tag
-                        .create_trigger.replace(
-                            '#table_name#', node.tag.schema + '.' + node.parent
-                            .text));
+                    tabSQLTemplate(
+                        'Create Trigger',
+                        node.tree.tag.create_trigger.replace(
+                            '#table_name#',
+                            node.parent.text
+                        )
+                    );
                 }
             }, {
                 text: 'Doc: Triggers',
@@ -545,42 +530,8 @@ function getTreeSqlite(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/trigger-definition.html');
-                }
-            }]
-        },
-        'cm_view_triggers': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreeSqlite(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                },
-            }, {
-                text: 'Create Trigger',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Create Trigger', node.tree.tag
-                        .create_view_trigger.replace(
-                            '#table_name#', node.tag.schema + '.' + node.parent
-                            .text));
-                }
-            }, {
-                text: 'Doc: Triggers',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Triggers',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/trigger-definition.html');
+                        'https://www.sqlite.org/docs/' + getMajorVersionSqlite(node.tree.tag.version) + '/static/trigger-definition.html'
+                    );
                 }
             }]
         },
@@ -589,50 +540,34 @@ function getTreeSqlite(p_div) {
                 text: 'Alter Trigger',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
-                    tabSQLTemplate('Alter Trigger', node.tree.tag
-                        .alter_trigger.replace(
-                            '#table_name#', node.tag.schema + '.' +
-                            node.parent.parent.text).replace(
-                            '#trigger_name#', node.text));
-                }
-            }, {
-                text: 'Enable Trigger',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Enable Trigger', node.tree.tag
-                        .enable_trigger.replace(
-                            '#table_name#', node.tag.schema + '.' +
-                            node.parent.parent.text).replace(
-                            '#trigger_name#', node.text));
-                }
-            }, {
-                text: 'Disable Trigger',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Disable Trigger', node.tree
-                        .tag.disable_trigger.replace(
-                            '#table_name#', node.tag.schema + '.' +
-                            node.parent.parent.text).replace(
-                            '#trigger_name#', node.text));
-                }
-            }, {
-                text: 'Edit Comment',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    getObjectDescriptionSqlite(node);
+                    tabSQLTemplate(
+                        'Alter Trigger',
+                        node.tree.tag.alter_trigger.replace(
+                            '#table_name#',
+                            node.parent.parent.text
+                        ).replace(
+                            '#trigger_name#',
+                            node.text
+                        )
+                    );
                 }
             }, {
                 text: 'Drop Trigger',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
-                    tabSQLTemplate('Drop Trigger', node.tree.tag
-                        .drop_trigger.replace(
-                            '#table_name#', node.tag.schema + '.' +
-                            node.parent.parent.text).replace(
-                            '#trigger_name#', node.text));
+                    tabSQLTemplate(
+                        'Drop Trigger',
+                        node.tree.tag.drop_trigger.replace(
+                            '#table_name#',
+                            node.parent.parent.text
+                        ).replace(
+                            '#trigger_name#',
+                            node.text
+                        )
+                    );
                 }
             }]
-        },*/
+        },
         'cm_views': {
             elements: [{
                 text: 'Refresh',
@@ -652,10 +587,7 @@ function getTreeSqlite(p_div) {
                 action: function(node) {
                     tabSQLTemplate(
                         'Create View',
-                        node.tree.tag.create_view.replace(
-                            '#schema_name#',
-                            node.tag.schema
-                        )
+                        node.tree.tag.create_view
                     );
                 }
             }/*, {
@@ -688,7 +620,6 @@ function getTreeSqlite(p_div) {
                 icon: 'fas cm-all fa-search',
                 action: function(node) {
                     TemplateSelectSqlite(
-                        node.parent.parent.text,
                         node.text,
                         'v'
                     );
@@ -711,7 +642,7 @@ function getTreeSqlite(p_div) {
                         'Alter View',
                         node.tree.tag.alter_view.replace(
                             /#view_name#/g,
-                            node.tag.schema + '.' + node.text
+                            node.text
                         )
                     );
                 }
@@ -723,7 +654,7 @@ function getTreeSqlite(p_div) {
                         'Drop View',
                         node.tree.tag.drop_view.replace(
                             '#view_name#',
-                            node.tag.schema + '.' + node.text
+                            node.text
                         )
                     );
                 }
@@ -860,9 +791,9 @@ function refreshTreeSqlite(node) {
         else if (node.tag.type == 'index') {
             getIndexesColumnsSqlite(node);
         }
-        /*else if (node.tag.type == 'trigger_list') {
+        else if (node.tag.type == 'trigger_list') {
             getTriggersSqlite(node);
-        }*/
+        }
         else if (node.tag.type == 'server') {
             getTreeDetailsSqlite(node);
         } else {
@@ -977,8 +908,7 @@ function getTreeDetailsSqlite(node) {
                 alter_index: p_return.v_data.v_database_return.alter_index,
                 reindex: p_return.v_data.v_database_return.reindex,
                 drop_index: p_return.v_data.v_database_return.drop_index,
-                delete: p_return.v_data.v_database_return.delete,
-                truncate: p_return.v_data.v_database_return.truncate
+                delete: p_return.v_data.v_database_return.delete
             }
 
             var node_tables = node.createChildNode(
@@ -1115,8 +1045,7 @@ function getTablesSqlite(node) {
                     false,
                     'node-spin',
                     {
-                        type: 'table_field',
-                        schema: node.tag.schema
+                        type: 'table_field'
                     },
                     null,
                     null,
@@ -1341,6 +1270,31 @@ function getColumnsSqlite(node) {
                 );
             }
 
+            if (node.tag.has_triggers) {
+                v_node = node.createChildNode(
+                    'Triggers',
+                    false,
+                    'fas node-all fa-bolt node-trigger',
+                    {
+                        type: 'trigger_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_triggers',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            }
+
             node.drawChildNodes();
 
             afterNodeOpenedCallbackSqlite(node);
@@ -1404,6 +1358,59 @@ function getPKSqlite(node) {
                     null
                 );
             }
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving PKs Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPKColumnsSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_pk_columns_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': node.parent.parent.text
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                v_node.createChildNode(
+                    p_return.v_data[i][0],
+                    false,
+                    'fas node-all fa-columns node-column',
+                    {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
 
             afterNodeOpenedCallbackSqlite(node);
         },
@@ -1506,5 +1513,713 @@ function getFKsSqlite(node) {
         },
         'box',
         false
+    );
+}
+
+/// <summary>
+/// Retrieving FKs Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getFKsColumnsSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_fks_columns_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_fkey': node.text,
+            'p_table': node.parent.parent.text
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            node.createChildNode(
+                'Referenced Table: ' + p_return.v_data[0][0],
+                false,
+                'fas node-all fa-table node-table',
+                {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                },
+                null,
+                null,
+                false
+            );
+
+            node.createChildNode(
+                'Delete Rule: ' + p_return.v_data[0][1],
+                false,
+                'fas node-all fa-ellipsis-h node-bullet',
+                {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                },
+                null,
+                null,
+                false
+            );
+
+            node.createChildNode(
+                'Update Rule: ' + p_return.v_data[0][2],
+                false,
+                'fas node-all fa-ellipsis-h node-bullet',
+                {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                },
+                null,
+                null,
+                false
+            );
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                node.createChildNode(
+                    p_return.v_data[i][3] + " <i class='fas node-all fa-arrow-right'></i> " + p_return.v_data[i][4],
+                    false,
+                    'fas node-all fa-columns node-column',
+                    {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving Uniques.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getUniquesSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_uniques_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': node.parent.text
+        }),
+        function(p_return) {
+            node.setText('Uniques (' + p_return.v_data.length + ')');
+
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                v_node = node.createChildNode(
+                    p_return.v_data[i][0],
+                    false,
+                    'fas node-all fa-key node-unique',
+                    {
+                        type: 'unique',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_unique',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    {
+                        type: 'unique_field'
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving Uniques Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getUniquesColumnsSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_uniques_columns_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_unique': node.text,
+            'p_table': node.parent.parent.text
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                node.createChildNode(
+                    p_return.v_data[i][0],
+                    false,
+                    'fas node-all fa-columns node-column',
+                    {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving Indexes.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getIndexesSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_indexes_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': node.parent.text
+        }),
+        function(p_return) {
+            node.setText('Indexes (' + p_return.v_data.length + ')');
+
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                var v_node = node.createChildNode(
+                    p_return.v_data[i][0] + ' (' + p_return.v_data[i][1] + ')',
+                    false,
+                    'fas node-all fa-thumbtack node-index',
+                    {
+                        type: 'index',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_index',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    {
+                        type: 'index_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving Indexes Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getIndexesColumnsSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_indexes_columns_sqlite/',
+        JSON.stringify({
+            p_database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            p_tab_id: v_connTabControl.selectedTab.id,
+            p_index: node.text.replace(' (Non Unique)', '').replace(' (Unique)', ''),
+            p_table: node.parent.parent.text
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                node.createChildNode(
+                    p_return.v_data[i][0],
+                    false,
+                    'fas node-all fa-columns node-column',
+                    {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving views.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getViewsSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_views_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            node.setText('Views (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                var v_node = node.createChildNode(
+                    p_return.v_data[i].v_name,
+                    false,
+                    'fas node-all fa-eye node-view',
+                    {
+                        type: 'view',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_view',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    {
+                        type: 'view_field'
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving View Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getViewsColumnsSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_views_columns_sqlite/',
+        JSON.stringify({
+            p_database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            p_tab_id: v_connTabControl.selectedTab.id,
+            p_table: node.text
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            var v_list = node.createChildNode(
+                'Columns (' + p_return.v_data.length +')',
+                false,
+                'fas node-all fa-columns node-column',
+                {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                },
+                null,
+                null,
+                false
+            );
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                var v_node = v_list.createChildNode(
+                    p_return.v_data[i].v_column_name,
+                    false,
+                    'fas node-all fa-columns node-column',
+                    {
+                        type: 'table_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    'Type: ' + p_return.v_data[i].v_data_type,
+                    false,
+                    'fas node-all fa-ellipsis-h node-bullet',
+                    {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            if (node.tag.has_rules) {
+                var v_node = node.createChildNode(
+                    'Rules',
+                    false,
+                    'fas node-all fa-lightbulb node-rule',
+                    {
+                        type: 'rule_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_rules',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            if (node.tag.has_triggers) {
+                var v_node = node.createChildNode(
+                    'Triggers',
+                    false,
+                    'fas node-all fa-bolt node-trigger',
+                    {
+                        type: 'trigger_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_view_triggers',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving view definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getViewDefinitionSqlite(node) {
+    execAjax('/get_view_definition_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_view': node.text
+        }),
+        function(p_return) {
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab, node.text);
+
+            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht != null) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.destroy();
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht = null;
+            }
+
+            v_div_result.innerHTML = '';
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        true
+    );
+}
+
+/// <summary>
+/// Retrieving Triggers.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getTriggersSqlite(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_triggers_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': node.parent.text
+        }),
+        function(p_return) {
+            node.setText('Triggers (' + p_return.v_data.length + ')');
+
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            for (var i = 0; i < p_return.v_data.length; i++) {
+                var v_node = node.createChildNode(
+                    p_return.v_data[i].v_name,
+                    false,
+                    'fas node-all fa-bolt node-trigger',
+                    {
+                        type: 'trigger',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    },
+                    'cm_trigger',
+                    null,
+                    true
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackSqlite(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
+}
+
+/// <summary>
+/// Retrieving SELECT SQL template.
+/// </summary>
+function TemplateSelectSqlite(p_table, p_kind) {
+    execAjax(
+        '/template_select_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': p_table,
+            'p_kind': p_kind
+        }),
+        function(p_return) {
+            let v_tab_name = p_table;
+            v_connTabControl.tag.createQueryTab(v_tab_name);
+
+            var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+            v_tab_tag.editor.setValue(p_return.v_data.v_template);
+            v_tab_tag.editor.clearSelection();
+
+            querySQL(0);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true
+    );
+}
+
+/// <summary>
+/// Retrieving INSERT SQL template.
+/// </summary>
+function TemplateInsertSqlite(p_table) {
+    execAjax(
+        '/template_insert_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': p_table
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Insert ' + p_table,
+              p_return.v_data.v_template
+          );
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true
+    );
+}
+
+/// <summary>
+/// Retrieving UPDATE SQL template.
+/// </summary>
+function TemplateUpdateSqlite(p_table) {
+    execAjax(
+        '/template_update_sqlite/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_table': p_table
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Update ' + p_table,
+              p_return.v_data.v_template
+          );
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true
     );
 }

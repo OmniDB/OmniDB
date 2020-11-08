@@ -272,6 +272,7 @@ base_urlpatterns = [
     url(r'^get_uniques_columns_sqlite/', views.tree_sqlite.get_uniques_columns, name='get_uniques_columns'),
     url(r'^get_indexes_sqlite/', views.tree_sqlite.get_indexes, name='get_indexes'),
     url(r'^get_indexes_columns_sqlite/', views.tree_sqlite.get_indexes_columns, name='get_indexes_columns'),
+    url(r'^get_triggers_sqlite/', views.tree_sqlite.get_triggers, name='get_triggers'),
     url(r'^get_views_sqlite/', views.tree_sqlite.get_views, name='get_views'),
     url(r'^get_views_columns_sqlite/', views.tree_sqlite.get_views_columns, name='get_views_columns'),
     url(r'^get_view_definition_sqlite/', views.tree_sqlite.get_view_definition, name='get_view_definition'),

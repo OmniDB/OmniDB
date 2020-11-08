@@ -6262,7 +6262,7 @@ function getUniquesColumnsPostgresql(node) {
 
                 for (i = 0; i < p_return.v_data.length; i++) {
 
-                    v_node.createChildNode(p_return.v_data[i][0], false,
+                    node.createChildNode(p_return.v_data[i][0], false,
                         'fas node-all fa-columns node-column', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
                             schema: node.tag.schema

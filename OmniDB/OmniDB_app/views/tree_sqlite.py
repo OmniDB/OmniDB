@@ -47,8 +47,7 @@ def get_tree_info(request, v_database):
                 'create_index': v_database.TemplateCreateIndex().v_text,
                 'alter_index': v_database.TemplateAlterIndex().v_text,
                 'drop_index': v_database.TemplateDropIndex().v_text,
-                'delete': v_database.TemplateDelete().v_text,
-                'truncate': v_database.TemplateTruncate().v_text,
+                'delete': v_database.TemplateDelete().v_text
             }
         }
     except Exception as exc:
@@ -179,17 +178,16 @@ def get_pk_columns(request, v_database):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
-    v_pkey = json_object['p_key']
     v_table = json_object['p_table']
 
     v_list_pk = []
 
     try:
-        v_pks = v_database.QueryTablesPrimaryKeysColumns(v_pkey, v_table)
+        v_pk = v_database.QueryTablesPrimaryKeysColumns(v_table)
 
-        for v_pk in v_pks.Rows:
+        for v_row in v_pk.Rows:
             v_pk_data = []
-            v_pk_data.append(v_pk['column_name'])
+            v_pk_data.append(v_row['column_name'])
 
             v_list_pk.append(v_pk_data)
     except Exception as exc:
@@ -324,6 +322,8 @@ def get_uniques_columns(request, v_database):
 
     try:
         v_uniques = v_database.QueryTablesUniquesColumns(v_unique, v_table)
+
+        print(v_uniques.Rows)
 
         for v_unique in v_uniques.Rows:
             v_unique_data = []
@@ -496,6 +496,39 @@ def get_view_definition(request, v_database):
 
 @user_authenticated
 @database_required(p_check_timeout=False, p_open_connection=True)
+def get_triggers(request, v_database):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+
+    v_list_triggers = []
+
+    try:
+        v_triggers = v_database.QueryTablesTriggers(v_table)
+
+        for v_trigger in v_triggers.Rows:
+            v_trigger_data = {
+                'v_name': v_trigger['trigger_name']
+            }
+
+            v_list_triggers.append(v_trigger_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_triggers
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_required(p_check_timeout=False, p_open_connection=True)
 def template_select(request, v_database):
     v_return = {}
     v_return['v_data'] = ''
@@ -511,6 +544,8 @@ def template_select(request, v_database):
     try:
         v_template = v_database.TemplateSelect(v_table, v_kind).v_text
     except Exception as exc:
+        import traceback
+        print(traceback.format_exc())
         v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)

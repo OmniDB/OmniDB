@@ -508,8 +508,6 @@ class SQLite:
             ''', True)
 
         for v_table in v_tables.Rows:
-            v_index_count = -1
-
             v_indexes = self.v_connection.Query('''
                 PRAGMA index_list('{0}')
             '''.format(
@@ -518,10 +516,8 @@ class SQLite:
 
             for v_index in v_indexes.Rows:
                 if v_index['origin'] == 'c':
-                    v_index_count += 1
-
                     v_indexes_all.AddRow([
-                        'idx_{0}'.format(v_index_count),
+                        v_index['name'],
                         v_table['name'],
                         'Unique' if v_index['unique'] == '1' else 'Non Unique'
                     ])
@@ -553,8 +549,6 @@ class SQLite:
             ''', True)
 
         for v_table in v_tables.Rows:
-            v_index_count = -1
-
             v_indexes = self.v_connection.Query('''
                 PRAGMA index_list('{0}')
             '''.format(
@@ -563,9 +557,7 @@ class SQLite:
 
             for v_index in v_indexes.Rows:
                 if v_index['origin'] == 'c':
-                    v_index_count += 1
-
-                    if ('idx_{0}'.format(v_index_count)) == p_index:
+                    if v_index['name'] == p_index:
                         v_index_columns = self.v_connection.Query('''
                             PRAGMA index_info('{0}')
                         '''.format(
@@ -574,7 +566,7 @@ class SQLite:
 
                         for v_index_column in v_index_columns.Rows:
                             v_indexes_all.AddRow([
-                                'idx_{0}'.format(v_index_count),
+                                v_index['name'],
                                 v_index_column['name'],
                                 v_table['name']
                             ])
@@ -835,13 +827,16 @@ class SQLite:
         )
 
     def TemplateCreateView(self):
-        return Template('')
-
-    def TemplateAlterView(self):
-        return Template('')
+        return Template('''CREATE
+--TEMPORARY
+VIEW view_name
+--( column_definition, ... )
+AS
+--SELECT...
+''')
 
     def TemplateDropView(self):
-        return Template('')
+        return Template('DROP VIEW #view_name#')
 
     def TemplateCreateTable(self):
         return Template('''CREATE
@@ -870,46 +865,51 @@ TABLE table_name
         return Template('DROP TABLE #table_name#')
 
     def TemplateCreateColumn(self):
-        return Template('')
-
-    def TemplateAlterColumn(self):
-        return Template('')
-
-    def TemplateDropColumn(self):
-        return Template('')
-
-    def TemplateCreatePrimaryKey(self):
-        return Template('')
-
-    def TemplateDropPrimaryKey(self):
-        return Template('')
-
-    def TemplateCreateUnique(self):
-        return Template('')
-
-    def TemplateDropUnique(self):
-        return Template('')
-
-    def TemplateCreateForeignKey(self):
-        return Template('')
-
-    def TemplateDropForeignKey(self):
-        return Template('')
+        return Template('''ALTER TABLE #table_name#
+ADD COLUMN columnd_definition
+''')
 
     def TemplateCreateIndex(self):
-        return Template('')
+        return Template('''CREATE
+--UNIQUE
+INDEX index_name ON #table_name# ( column_name, ... )
+--WHERE expression
+''')
 
-    def TemplateAlterIndex(self):
-        return Template('')
+    def TemplateReindex(self):
+        return Template('REINDEX #index_name#')
 
     def TemplateDropIndex(self):
-        return Template('')
+        return Template('DROP INDEX #index_name#')
 
     def TemplateDelete(self):
         return Template('''DELETE FROM
 #table_name#
 WHERE condition
 ''')
+
+    def TemplateCreateTrigger(self):
+        return Template('''CREATE
+--TEMPORARY
+TRIGGER trigger_name
+--BEFORE
+--AFTER
+--INSTEAD OF
+--DELETE
+--INSERT
+--UPDATE
+--OF column_name
+ON #table_name#
+--FOR EACH ROW
+WHEN expression
+BEGIN
+    statement
+;
+END
+''')
+
+    def TemplateDropTrigger(self):
+        return Template('DROP TRIGGER #trigger_name#')
 
     def GetAutocompleteValues(self, p_columns, p_filter):
         return None

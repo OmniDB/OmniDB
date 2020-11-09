@@ -191,37 +191,7 @@ function getTreeSqlite(p_div) {
             }]
         },
         'cm_column': {
-            elements: [{
-                text: 'Alter Column',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Alter Column',
-                        node.tree.tag.alter_column.replace(
-                            '#table_name#',
-                            node.parent.parent.text
-                        ).replace(
-                            /#column_name#/g,
-                            node.text
-                        )
-                    );
-                }
-            }, {
-                text: 'Drop Column',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Drop Column',
-                        node.tree.tag.drop_column.replace(
-                            '#table_name#',
-                            node.parent.parent.text
-                        ).replace(
-                            /#column_name#/g,
-                            node.text
-                        )
-                    );
-                }
-            }]
+            elements: []
         },
         'cm_pks': {
             elements: [{
@@ -235,18 +205,6 @@ function getTreeSqlite(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
-                }
-            }, {
-                text: 'Create Primary Key',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Create Primary Key',
-                        node.tree.tag.create_primarykey.replace(
-                            '#table_name#',
-                            node.parent.text
-                        )
-                    );
                 }
             }]
         },
@@ -263,21 +221,6 @@ function getTreeSqlite(p_div) {
                         node.expandNode();
                     }
                 }
-            }, {
-                text: 'Drop Primary Key',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Drop Primary Key',
-                        node.tree.tag.drop_primarykey.replace(
-                            '#table_name#',
-                            node.parent.parent.text
-                        ).replace(
-                            '#constraint_name#',
-                            node.text
-                        )
-                    );
-                }
             }]
         },
         'cm_fks': {
@@ -292,18 +235,6 @@ function getTreeSqlite(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
-                }
-            }, {
-                text: 'Create Foreign Key',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Create Foreign Key',
-                        node.tree.tag.create_foreignkey.replace(
-                            '#table_name#',
-                            node.parent.text
-                        )
-                    );
                 }
             }]
         },
@@ -320,20 +251,6 @@ function getTreeSqlite(p_div) {
                         node.expandNode();
                     }
                 }
-            }, {
-                text: 'Drop Foreign Key',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Drop Foreign Key', node.tree.tag.drop_foreignkey.replace(
-                            '#table_name#',
-                            node.parent.parent.text
-                        ).replace(
-                            '#constraint_name#',
-                            node.text
-                        )
-                    );
-                }
             }]
         },
         'cm_uniques': {
@@ -349,18 +266,6 @@ function getTreeSqlite(p_div) {
                         node.expandNode();
                     }
                 }
-            }, {
-                text: 'Create Unique',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Create Unique',
-                        node.tree.tag.create_unique.replace(
-                            '#table_name#',
-                            node.parent.text
-                        )
-                    );
-                }
             }]
         },
         'cm_unique': {
@@ -375,21 +280,6 @@ function getTreeSqlite(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
-                }
-            }, {
-                text: 'Drop Unique',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Drop Unique',
-                        node.tree.tag.drop_unique.replace(
-                            '#table_name#',
-                            node.parent.parent.text
-                        ).replace(
-                            '#constraint_name#',
-                            node.text
-                        )
-                    );
                 }
             }]
         },
@@ -442,24 +332,6 @@ function getTreeSqlite(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
-                }
-            }, {
-                text: 'Alter Index',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Alter Index',
-                        node.tree.tag.alter_index.replace(
-                            '#index_name#',
-                            node.text.replace(
-                                ' (Unique)',
-                                ''
-                            ).replace(
-                                ' (Non Unique)',
-                                ''
-                            )
-                        )
-                    );
                 }
             }, {
                 text: 'Reindex',
@@ -622,28 +494,6 @@ function getTreeSqlite(p_div) {
                     TemplateSelectSqlite(
                         node.text,
                         'v'
-                    );
-                }
-            }, {
-                text: 'Edit View',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    v_connTabControl.tag.createQueryTab(
-                        node.text
-                    );
-
-                    getViewDefinitionSqlite(node);
-                }
-            }, {
-                text: 'Alter View',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Alter View',
-                        node.tree.tag.alter_view.replace(
-                            /#view_name#/g,
-                            node.text
-                        )
                     );
                 }
             }, {
@@ -890,7 +740,6 @@ function getTreeDetailsSqlite(node) {
             node.tree.tag = {
                 version: p_return.v_data.v_database_return.version,
                 create_view: p_return.v_data.v_database_return.create_view,
-                alter_view: p_return.v_data.v_database_return.alter_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
                 create_table: p_return.v_data.v_database_return.create_table,
                 alter_table: p_return.v_data.v_database_return.alter_table,
@@ -898,17 +747,12 @@ function getTreeDetailsSqlite(node) {
                 create_column: p_return.v_data.v_database_return.create_column,
                 alter_column: p_return.v_data.v_database_return.alter_column,
                 drop_column: p_return.v_data.v_database_return.drop_column,
-                create_primarykey: p_return.v_data.v_database_return.create_primarykey,
-                drop_primarykey: p_return.v_data.v_database_return.drop_primarykey,
-                create_unique: p_return.v_data.v_database_return.create_unique,
-                drop_unique: p_return.v_data.v_database_return.drop_unique,
-                create_foreignkey: p_return.v_data.v_database_return.create_foreignkey,
-                drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
                 create_index: p_return.v_data.v_database_return.create_index,
-                alter_index: p_return.v_data.v_database_return.alter_index,
                 reindex: p_return.v_data.v_database_return.reindex,
                 drop_index: p_return.v_data.v_database_return.drop_index,
-                delete: p_return.v_data.v_database_return.delete
+                delete: p_return.v_data.v_database_return.delete,
+                create_trigger: p_return.v_data.v_database_return.create_trigger,
+                drop_trigger: p_return.v_data.v_database_return.drop_trigger
             }
 
             var node_tables = node.createChildNode(

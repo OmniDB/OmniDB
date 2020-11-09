@@ -30,24 +30,17 @@ def get_tree_info(request, v_database):
                 'v_database': v_database.GetName(),
                 'version': v_database.GetVersion(),
                 'create_view': v_database.TemplateCreateView().v_text,
-                'alter_view': v_database.TemplateAlterView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
                 'create_table': v_database.TemplateCreateTable().v_text,
                 'alter_table': v_database.TemplateAlterTable().v_text,
                 'drop_table': v_database.TemplateDropTable().v_text,
                 'create_column': v_database.TemplateCreateColumn().v_text,
-                'alter_column': v_database.TemplateAlterColumn().v_text,
-                'drop_column': v_database.TemplateDropColumn().v_text,
-                'create_primarykey': v_database.TemplateCreatePrimaryKey().v_text,
-                'drop_primarykey': v_database.TemplateDropPrimaryKey().v_text,
-                'create_unique': v_database.TemplateCreateUnique().v_text,
-                'drop_unique': v_database.TemplateDropUnique().v_text,
-                'create_foreignkey': v_database.TemplateCreateForeignKey().v_text,
-                'drop_foreignkey': v_database.TemplateDropForeignKey().v_text,
                 'create_index': v_database.TemplateCreateIndex().v_text,
-                'alter_index': v_database.TemplateAlterIndex().v_text,
+                'reindex': v_database.TemplateReindex().v_text,
                 'drop_index': v_database.TemplateDropIndex().v_text,
-                'delete': v_database.TemplateDelete().v_text
+                'delete': v_database.TemplateDelete().v_text,
+                'create_trigger': v_database.TemplateCreateTrigger().v_text,
+                'drop_trigger': v_database.TemplateDropTrigger().v_text
             }
         }
     except Exception as exc:

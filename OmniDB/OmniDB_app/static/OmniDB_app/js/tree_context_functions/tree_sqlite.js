@@ -68,15 +68,6 @@ function getTreeSqlite(p_div) {
                         node.tree.tag.create_table
                     );
                 }
-            }, {
-                text: 'Doc: Create Table',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Create Table',
-                        'https://sqlite.org/lang_createtable.html'
-                    );
-                }
             }]
         },
         'cm_table': {
@@ -308,17 +299,7 @@ function getTreeSqlite(p_div) {
                         )
                     );
                 }
-            }/*, {
-                text: 'Doc: Indexes',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Indexes',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/indexes.html');
-                }
-            }*/]
+            }]
         },
         'cm_index': {
             elements: [{
@@ -396,15 +377,6 @@ function getTreeSqlite(p_div) {
                         )
                     );
                 }
-            }, {
-                text: 'Doc: Triggers',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Triggers',
-                        'https://www.sqlite.org/docs/' + getMajorVersionSqlite(node.tree.tag.version) + '/static/trigger-definition.html'
-                    );
-                }
             }]
         },
         'cm_trigger': {
@@ -462,17 +434,7 @@ function getTreeSqlite(p_div) {
                         node.tree.tag.create_view
                     );
                 }
-            }/*, {
-                text: 'Doc: Views',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Views',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/sql-createview.html');
-                }
-            }*/]
+            }]
         },
         'cm_view': {
             elements: [{
@@ -698,40 +660,6 @@ function getTreeDetailsSqlite(node) {
                     }
                 }
             });
-
-            /*node.tree.contextMenu.cm_server.elements.push({
-                text: 'Doc: Sqlite',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Sqlite',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/');
-                }
-            });
-            node.tree.contextMenu.cm_server.elements.push({
-                text: 'Doc: SQL Language',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: SQL Language',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/sql.html');
-                }
-            });
-            node.tree.contextMenu.cm_server.elements.push({
-                text: 'Doc: SQL Commands',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: SQL Commands',
-                        'https://www.sqlite.org/docs/' +
-                        getMajorVersionSqlite(node.tree.tag.version) +
-                        '/static/sql-commands.html');
-                }
-            });*/
 
             if (node.childNodes.length > 0) {
                 node.removeChildNodes();
@@ -2066,4 +1994,70 @@ function TemplateUpdateSqlite(p_table) {
         'box',
         true
     );
+}
+
+/// <summary>
+/// Retrieving properties.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPropertiesSqlite(node) {
+    if (node.tag != undefined) {
+        if (node.tag.type == 'table') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'table_field') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'view') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'trigger') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'index') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: node.parent.parent.text,
+                p_object: node.text.replace(' (Non Unique)', '').replace(' (Unique)', ''),
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'pk') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'foreign_key') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'unique') {
+            getProperties('/get_properties_sqlite/', {
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else {
+            clearProperties();
+        }
+    }
+
+    //Hooks
+    if (v_connTabControl.tag.hooks.sqliteTreeNodeClick.length>0) {
+      for (var i=0; i<v_connTabControl.tag.hooks.sqliteTreeNodeClick.length; i++)
+        v_connTabControl.tag.hooks.sqliteTreeNodeClick[i](node);
+    }
 }

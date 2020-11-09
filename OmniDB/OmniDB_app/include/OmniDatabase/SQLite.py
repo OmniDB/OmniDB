@@ -411,8 +411,6 @@ class SQLite:
             ''', True)
 
         for v_table in v_tables.Rows:
-            v_unique_count = -1
-
             v_uniques = self.v_connection.Query('''
                 PRAGMA index_list('{0}')
             '''.format(
@@ -421,10 +419,8 @@ class SQLite:
 
             for v_unique in v_uniques.Rows:
                 if v_unique['origin'] == 'u':
-                    v_unique_count += 1
-
                     v_uniques_all.AddRow([
-                        'unique_{0}'.format(v_unique_count),
+                        v_unique['name'],
                         v_table['name']
                     ])
 
@@ -455,8 +451,6 @@ class SQLite:
             ''', True)
 
         for v_table in v_tables.Rows:
-            v_unique_count = -1
-
             v_uniques = self.v_connection.Query('''
                 PRAGMA index_list('{0}')
             '''.format(
@@ -465,9 +459,7 @@ class SQLite:
 
             for v_unique in v_uniques.Rows:
                 if v_unique['origin'] == 'u':
-                    v_unique_count += 1
-
-                    if ('unique_{0}'.format(v_unique_count)) == p_unique:
+                    if v_unique['name'] == p_unique:
                         v_unique_columns = self.v_connection.Query('''
                             PRAGMA index_info('{0}')
                         '''.format(
@@ -476,7 +468,7 @@ class SQLite:
 
                         for v_unique_column in v_unique_columns.Rows:
                             v_uniques_all.AddRow([
-                                'unique_{0}'.format(v_unique_count),
+                                v_unique['name'],
                                 v_unique_column['name'],
                                 v_table['name']
                             ])
@@ -925,3 +917,139 @@ END
             }
 
         return v_return
+
+    def GetPropertiesTable(self, p_object):
+        return self.v_connection.Query('''
+            SELECT type AS "Type",
+                   name AS "Name",
+                   rootpage AS "Root Page"
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesTableField(self, p_table, p_object):
+        return self.v_connection.Query('''
+            SELECT 'Column' AS "Type",
+                   '{0}' AS "Name"
+        '''.format(p_object))
+
+    def GetPropertiesIndex(self, p_object):
+        return self.v_connection.Query('''
+            SELECT type AS "Type",
+                   name AS "Name",
+                   rootpage AS "Root Page"
+            FROM sqlite_master
+            WHERE type = 'index'
+              AND name = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesView(self, p_object):
+        return self.v_connection.Query('''
+            SELECT type AS "Type",
+                   name AS "Name",
+                   rootpage AS "Root Page"
+            FROM sqlite_master
+            WHERE type = 'view'
+              AND name = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesTrigger(self, p_table, p_object):
+        return self.v_connection.Query('''
+            SELECT type AS "Type",
+                   name AS "Name",
+                   rootpage AS "Root Page"
+            FROM sqlite_master
+            WHERE type = 'trigger'
+              AND name = '{0}'
+              AND tbl_name = '{1}'
+        '''.format(p_object, p_table))
+
+    def GetPropertiesPK(self, p_table, p_object):
+        return self.v_connection.Query('''
+            SELECT 'PK' AS "Type",
+                   '{0}' AS "Name"
+        '''.format(p_object))
+
+    def GetPropertiesFK(self, p_table, p_object):
+        return self.v_connection.Query('''
+            SELECT 'FK' AS "Type",
+                   '{0}' AS "Name"
+        '''.format(p_object))
+
+    def GetPropertiesUnique(self, p_table, p_object):
+        return self.v_connection.Query('''
+            SELECT 'Unique' AS "Type",
+                   '{0}' AS "Name"
+        '''.format(p_object))
+
+    def GetProperties(self, p_table, p_object, p_type):
+        try:
+            if p_type == 'table':
+                return self.GetPropertiesTable(p_object).Transpose('Property', 'Value')
+            elif p_type == 'table_field':
+                return self.GetPropertiesTableField(p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'index':
+                return self.GetPropertiesIndex(p_object).Transpose('Property', 'Value')
+            elif p_type == 'view':
+                return self.GetPropertiesView(p_object).Transpose('Property', 'Value')
+            elif p_type == 'trigger':
+                return self.GetPropertiesTrigger(p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'pk':
+                return self.GetPropertiesPK(p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_key':
+                return self.GetPropertiesFK(p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'unique':
+                return self.GetPropertiesUnique(p_table, p_object).Transpose('Property', 'Value')
+            else:
+                return None
+        except Spartacus.Database.Exception as exc:
+            if str(exc) == 'Can only transpose a table with a single row.':
+                raise Exception('Object {0} does not exist anymore. Please refresh the tree view.'.format(p_object))
+            else:
+                raise exc
+
+    def GetDDLTable(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            SELECT sql
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name = '{0}'
+        '''.format(p_object))
+
+    def GetDDLIndex(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            SELECT sql
+            FROM sqlite_master
+            WHERE type = 'index'
+              AND name = '{0}'
+        '''.format(p_object))
+
+    def GetDDLView(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            SELECT sql
+            FROM sqlite_master
+            WHERE type = 'view'
+              AND name = '{0}'
+        '''.format(p_object))
+
+    def GetDDLTrigger(self, p_object, p_table):
+        return self.v_connection.ExecuteScalar('''
+            SELECT sql
+            FROM sqlite_master
+            WHERE type = 'trigger'
+              AND name = '{0}'
+              AND tbl_name = '{1}'
+        '''.format(p_object, p_table))
+
+    def GetDDL(self, p_table, p_object, p_type):
+        if p_type == 'table':
+            return self.GetDDLTable(p_object)
+        elif p_type == 'index':
+            return self.GetDDLIndex(p_object)
+        elif p_type == 'view':
+            return self.GetDDLView(p_object)
+        elif p_type == 'trigger':
+            return self.GetDDLTrigger(p_object, p_table)
+        else:
+            return ''

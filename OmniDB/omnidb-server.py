@@ -86,8 +86,8 @@ group.add_option("-m", "--listconnections", dest="listconnections",
                   nargs=1,metavar="username",
                   help="list connections: -m username")
 group.add_option("-c", "--createconnection", dest="createconnection",
-                  nargs=7,metavar="username technology title host port database dbuser",
-                  help="create connection: -c username technology host port database dbuser")
+                  nargs=8,metavar="username technology title host port database dbuser dbpassword",
+                  help="create connection: -c username technology host port database dbuser dbpassword")
 group.add_option("-z", "--dropconnection", dest="dropconnection",
                   nargs=1,metavar="connid",
                   help="drop connection: -z connid")
@@ -349,7 +349,7 @@ if options.createconnection:
         port=options.createconnection[4],
         database=options.createconnection[5],
         username=options.createconnection[6],
-        password='',
+        password=options.createconnection[7],
         alias=options.createconnection[2],
         ssh_server='',
         ssh_port='',

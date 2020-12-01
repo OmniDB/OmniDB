@@ -2,35 +2,29 @@ FROM python:latest
 
 LABEL maintainer="OmniDB team"
 
-ARG OMNIDB_VERSION=3.0.3b
+ENV SERVICE_USER=omnidb
 
-SHELL ["/bin/bash", "-c"]
+WORKDIR /${SERVICE_USER}
 
-USER root
+ADD ./OmniDB /${SERVICE_USER}
+ADD requirements.txt /tmp
+ADD entrypoint.sh /entrypoint.sh
 
-RUN addgroup --system omnidb \
-    && adduser --system omnidb --ingroup omnidb \
-    && apt-get update \
-    && apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev vim -y
+RUN  adduser --system --home /${SERVICE_USER} --no-create-home ${SERVICE_USER} --uid 110 \
+  && mkdir -p /${SERVICE_USER} \
+  && chown -R ${SERVICE_USER}.root /${SERVICE_USER} \
+  && chmod -R g+w /${SERVICE_USER} \
+  && apt-get update \
+  && apt-get -y upgrade \
+  && apt-get install -y python3-pip libldap2-dev libsasl2-dev \
+  && pip3 install -r /tmp/requirements.txt \
+  && apt remove -y libldap2-dev libsasl2-dev \
+  && rm -rf /var/lib/apt/lists/*
 
-USER omnidb:omnidb
-ENV HOME /home/omnidb
-WORKDIR ${HOME}
+USER ${SERVICE_USER}
+  
+EXPOSE 8080
+EXPOSE 25482
 
-RUN wget https://github.com/OmniDB/OmniDB/archive/${OMNIDB_VERSION}.tar.gz \
-    && tar -xvzf ${OMNIDB_VERSION}.tar.gz \
-    && mv OmniDB-${OMNIDB_VERSION} OmniDB
-
-WORKDIR ${HOME}/OmniDB
-
-RUN pip install -r requirements.txt
-
-WORKDIR ${HOME}/OmniDB/OmniDB
-
-RUN sed -i "s/LISTENING_ADDRESS    = '127.0.0.1'/LISTENING_ADDRESS    = '0.0.0.0'/g" config.py \
-    && python omnidb-server.py --init \
-    && python omnidb-server.py --dropuser=admin
-
-EXPOSE 8000
-
-CMD python omnidb-server.py
+ENTRYPOINT [ "/entrypoint.sh"]
+CMD ["python3", "omnidb-server.py"]

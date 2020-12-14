@@ -1048,25 +1048,28 @@ function autocomplete_keydown(p_editor, p_event) {
 
 function autocomplete_update_editor_cursor(p_editor, p_event) {
   // Handle UP or DOWN if autocomplete is not enbled, just move cursor position
-  if(p_event.keyCode === 40 || p_event.keyCode === 38){
-    var v_cursor_pos = p_editor.getCursorPosition();
+  if (!p_event.shiftKey && !p_event.altKey && !p_event.ctrlKey && !p_event.metaKey) {
+    if(p_event.keyCode === 40 || p_event.keyCode === 38){
+      var v_cursor_pos = p_editor.getCursorPosition();
 
-    //p_editor.moveCursorTo(p_editor.getCursorPosition().row+1,p_editor.getCursorPosition().column);
-    let v_target_row;
-    if(p_event.keyCode === 40) {
-      v_target_row = v_cursor_pos.row+1;
+      //p_editor.moveCursorTo(p_editor.getCursorPosition().row+1,p_editor.getCursorPosition().column);
+      let v_target_row;
+      if(p_event.keyCode === 40) {
+        v_target_row = v_cursor_pos.row+1;
+      }
+      else {
+        v_target_row = v_cursor_pos.row-1;
+      }
+      p_editor.moveCursorTo(v_target_row,v_cursor_pos.column);
+      p_editor.clearSelection();
+      p_editor.renderer.scrollCursorIntoView({row:v_target_row});
     }
-    else {
-      v_target_row = v_cursor_pos.row-1;
+    // Handle TAB if autocomplete is not enbled
+    if(p_event.keyCode === 9){
+      var v_cursor_range = p_editor.getSelectionRange();
+      p_editor.indent();
+      p_editor.focus();
     }
-    p_editor.moveCursorTo(v_target_row,v_cursor_pos.column);
-    p_editor.clearSelection();
-    p_editor.renderer.scrollCursorIntoView({row:v_target_row});
-  }
-  // Handle TAB if autocomplete is not enbled
-  if(p_event.keyCode === 9){
-    p_editor.insert('\t');
-    p_editor.focus();
   }
   // Enter
   if (p_event.keyCode === 13) {

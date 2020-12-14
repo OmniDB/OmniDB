@@ -122,9 +122,6 @@ var v_createConsoleTabFunction = function() {
     if (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) {
       autocomplete_start(v_editor1,1,event);
     }
-    else {
-      autocomplete_update_editor_cursor(v_editor1, event);
-    }
   });
   $('#txt_input_' + v_tab.id).find('.ace_text-input').on('keydown',function(event){
     if (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) {

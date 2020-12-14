@@ -225,9 +225,6 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     if (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) {
       autocomplete_start(v_editor,0,event);
     }
-    else {
-      autocomplete_update_editor_cursor(v_editor, event);
-    }
   });
   $('#txt_query_' + v_tab.id).find('.ace_text-input').on('keydown',function(event){
     if (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) {

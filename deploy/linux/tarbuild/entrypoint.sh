@@ -14,6 +14,8 @@ pip install -r requirements.txt
 
 # Building server
 cd OmniDB/
+rm -f omnidb.db omnidb.log
+touch omnidb.db
 pyinstaller OmniDB-lin.spec
 mv dist/omnidb-server $HOME
 rm -rf build dist

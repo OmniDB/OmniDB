@@ -3,7 +3,7 @@
  "main": "index.html",
 "window": {
     "frame": false,
-    "transparent": true,
+    "transparent": false,
     "icon": "omnidb_icon.png"
   }
 }

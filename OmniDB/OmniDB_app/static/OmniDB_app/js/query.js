@@ -473,17 +473,17 @@ function querySQLReturnRender(p_message,p_context) {
 							columns : columnProperties,
 							colHeaders : true,
 							rowHeaders : true,
-							stretchH: 'last',
+							// stretchH: 'last',
 							autoRowSize: false,
 							//copyRowsLimit : 1000000000,
 							//copyColsLimit : 1000000000,
                             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
 							manualColumnResize: true,
-							modifyColWidth: function(width, col){
-					      if(width > 300){
-					        return 280
-					      }
-					    },
+							// modifyColWidth: function(width, col){
+					    //   if(width > 300){
+					    //     return 280
+					    //   }
+					    // },
 							fillHandle:false,
 							contextMenu: {
 								callback: function (key, options) {

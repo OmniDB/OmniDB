@@ -1,4 +1,4 @@
-# OmniDB 3.0.2 Beta
+# OmniDB 3.0.3 Beta
 
 ## Release Date: *October 28, 2020*
 
@@ -32,7 +32,7 @@
   - Improvements
     - Added snippets and custom monitoring units to the OmniDB 2 to 3 automatic migration process
 
-- 3.0.2 changes
+- 3.0.3 changes
   - Re-included
     - Explain visualizer component from OmniDB 2.x
     - Shortcuts for issueing Explain and Explain Analyze

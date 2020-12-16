@@ -124,7 +124,7 @@ def load_plugin(plugin_folder, p_load):
                 mon_units = getattr(module, 'monitoring_units')
                 for mon_unit in mon_units:
                     mon_unit['plugin_name'] = plugin_name
-                    monitoring_units.append(mon_unit)
+                    monitoring_units[(mon_unit['plugin_name'],mon_unit['id'])] = mon_unit
             except Exception as exc:
                 None
 

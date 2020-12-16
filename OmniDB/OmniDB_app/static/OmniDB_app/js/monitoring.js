@@ -479,7 +479,7 @@ $('#modal_monitoring_unit_test').on('shown.bs.modal', function (e) {
             if (p_return.v_data.v_error) {
               v_div_result.innerHTML = '<div class=error_text>' + p_return.v_data.v_message + '</div>';
             }
-            else if (v_type=='timeseries' || v_type=='chart') {
+            else if (v_type=='timeseries' || v_type=='chart' || v_return_unit.v_type=='chart_append') {
               var canvas = document.createElement('canvas');
               canvas.style.height = '250px';
               canvas.style.width = v_div_result.offsetWidth;
@@ -807,7 +807,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
               try {
                 // Chart unit
-                if (v_return_unit.v_type=='timeseries' || v_return_unit.v_type=='chart') {
+                if (v_return_unit.v_type=='timeseries' || v_return_unit.v_type=='chart' || v_return_unit.v_type=='chart_append') {
 
                   $(v_unit.div_loading).fadeOut(100);
 

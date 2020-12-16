@@ -2,7 +2,7 @@ FROM python:latest
 
 LABEL maintainer="OmniDB team"
 
-ARG OMNIDB_VERSION=3.0.2b
+ARG OMNIDB_VERSION=3.0.3b
 
 SHELL ["/bin/bash", "-c"]
 

@@ -1,102 +1,46 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
-data_files = [
-  ('db.sqlite3','.'),
-  ('omnidb.conf','.'),
+data_files_server = [
+  ('omnidb.db','.'),
+  ('config.py','.'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
-  ('OmniDB/migrations','OmniDB/migrations')
+  ('OmniDB_app/plugins','OmniDB_app/plugins')
 ]
 
-a = Analysis(['omnidb-app.py'],
+
+a = Analysis(['omnidb-server.py'],
+             pathex=['C:\\Users\\omnidb\\OmniDB\\OmniDB\\OmniDB'],
              binaries=[],
-             datas=data_files,
-             hiddenimports=[],
+             datas=data_files_server,
+             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin','psycopg2','paramiko'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
+             cipher=block_cipher,
+             noarchive=False)
+pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
-pyz_a = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe_a = EXE(pyz_a,
+exe = EXE(pyz,
           a.scripts,
+          [],
           exclude_binaries=True,
-          name='omnidb-app',
+          name='omnidb-server',
           debug=False,
+          bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=False,
-          icon='icons/win-icon.ico' )
-coll_a = COLLECT(exe_a,
+          console=True )
+coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
                strip=False,
                upx=True,
-               name='omnidb-app')
-
-b = Analysis(['omnidb-server.py'],
-             binaries=[],
-             datas=data_files,
-             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin'],
-             hookspath=[],
-             runtime_hooks=[],
-             excludes=[],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=block_cipher)
-pyz_b = PYZ(b.pure, b.zipped_data,
-             cipher=block_cipher)
-exe_b = EXE(pyz_b,
-          b.scripts,
-          exclude_binaries=True,
-          name='omnidb-server',
-          debug=False,
-          strip=False,
-          upx=True,
-          console=True )
-coll_b = COLLECT(exe_b,
-               b.binaries,
-               b.zipfiles,
-               b.datas,
-               strip=False,
-               upx=True,
+               upx_exclude=[],
                name='omnidb-server')
-
-c = Analysis(['omnidb-config.py'],
-            binaries=[],
-            datas=[],
-            hiddenimports=[],
-            hookspath=[],
-            runtime_hooks=[],
-            excludes=[],
-            win_no_prefer_redirects=False,
-            win_private_assemblies=False,
-            cipher=block_cipher)
-pyz_c = PYZ(c.pure, c.zipped_data,
-            cipher=block_cipher)
-exe_c = EXE(pyz_c,
-         c.scripts,
-         exclude_binaries=True,
-         name='omnidb-config',
-         debug=False,
-         strip=False,
-         upx=True,
-         console=True )
-coll_c = COLLECT(exe_c,
-              c.binaries,
-              c.zipfiles,
-              c.datas,
-              strip=False,
-              upx=True,
-              name='omnidb-config')
-
-app = BUNDLE(exe_a,
-            name='OmniDB.app',
-            icon='deploy/mac-icon.icns',
-            bundle_identifier=None)

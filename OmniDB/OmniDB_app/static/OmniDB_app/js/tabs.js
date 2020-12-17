@@ -100,7 +100,11 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
     'omnidb__tab-menu--',
     'omnidb__theme-bg--menu-'
   ];
+  // Adding classes based on variations and hierarchy.
+  v_div.classList.add(css_tab_menu_variations[0] + 'container');
   if (p_hierarchy !== undefined) {
+    v_div.classList.add(css_tab_menu_variations[0] + 'container--' + p_hierarchy);
+    v_div.classList.add(css_tab_menu_variations[0] + 'container--menu-shown');
     for (let i = 0; i < css_tab_menu_variations.length; i++) {
       v_tab_menu.classList.add(css_tab_menu_variations[i] + p_hierarchy);
     }
@@ -263,6 +267,28 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 
 			this.tabList.splice(this.tabList.indexOf(p_tab), 1);
 
+      // When there are not outer tabs left to select, need to search and select or create a welcome tab.
+      if (  (this === v_connTabControl) &&// Checking if the removed tab belongs to the outer menu.
+            (v_connTabControl.tabList.indexOf(v_connTabControl.selectedTab) === -1)// Checking if there are no other tabs to select.
+      ) {
+        // Looking for a welcome tab
+        var v_welcome_tab_index = false;
+        for (let i = 0; i < v_connTabControl.tabList.length; i++) {
+          if (v_connTabControl.tabList[i].tag) {
+            if (v_connTabControl.tabList[i].tag.mode === 'welcome') {
+              v_welcome_tab_index = i;
+            }
+          }
+        }
+
+        if (v_welcome_tab_index) {
+          this.selectTabIndex(v_welcome_tab_index);
+        }
+        // Not forcing user to have a welcome tab.
+        // else {
+        //   v_connTabControl.tag.createWelcomeTab();
+        // }
+      }
 
 		},
 		renameTab : function(p_tab,p_name) {
@@ -312,13 +338,16 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
       }
     },
     hideTabMenu : function() {
+      document.getElementById(p_div).classList.remove(this.tabCssVariation + 'container--menu-shown');
       this.tabMenu.classList.remove(this.tabCssVariation + 'shown');
     },
     showTabMenu : function() {
+      document.getElementById(p_div).classList.add(this.tabCssVariation + 'container--menu-shown');
       this.tabMenu.classList.add(this.tabCssVariation + 'shown');
     },
     toggleTabMenu : function(e) {
       var v_this = this;
+      $('#'+p_div).toggleClass(this.tabCssVariation + 'container--menu-shown');
       $(v_this.tabMenu).toggleClass(v_this.tabCssVariation + 'shown');
       // if (this.tabMenu === e.target)
       //   this.showTabMenu();
@@ -489,6 +518,7 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 			};
 
 			this.tabListDiv.appendChild(v_a);
+
 			this.tabListContentDiv.appendChild(v_div);
 
 			this.tabList.push(v_tab);

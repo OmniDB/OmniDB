@@ -155,6 +155,31 @@ function changeTheme(p_option) {
 		document.body.classList.remove('omnidb--theme-dark');
 		document.body.classList.add('omnidb--theme-light');
 	}
+	// Updating theme of all consoles.
+	try {
+		for (let i = 0; i < v_connTabControl.tabList.length; i++) {
+			var v_outer_tab = v_connTabControl.tabList[i];
+			if (v_outer_tab.tag) {
+				if (v_outer_tab.tag.tabControl) {
+					if (v_outer_tab.tag.tabControl.tabList) {
+						for (let j = 0; j < v_outer_tab.tag.tabControl.tabList.length; j++) {
+							var v_inner_tab_tag = v_outer_tab.tag.tabControl.tabList[j].tag;
+							if (v_inner_tab_tag.editor) {
+								v_inner_tab_tag.editor.setTheme("ace/theme/" + v_editor_theme);
+							}
+							else if (v_inner_tab_tag.editor_console) {
+								v_inner_tab_tag.editor_console.setOption('theme', v_current_terminal_theme);
+							}
+						}
+					}
+				}
+			}
+
+		}
+	}
+	catch (e) {
+		console.warn(e);
+	}
 
 	var els = document.getElementsByClassName("ace_editor");
 

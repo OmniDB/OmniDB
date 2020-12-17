@@ -188,7 +188,10 @@ $(function () {
     mysqlTreeNodeClick: [],
     mariadbTreeNodeOpen: [],
     mariadbTreeContextMenu: [],
-    mariadbTreeNodeClick: []
+    mariadbTreeNodeClick: [],
+    sqliteTreeNodeOpen: [],
+    sqliteTreeContextMenu: [],
+    sqliteTreeNodeClick: [],
   }
 
   execAjax('/get_plugins/',

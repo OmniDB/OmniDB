@@ -29,127 +29,127 @@ SOFTWARE.
 function initCreateTabFunctions() {
 
 
-	var v_createAlterTableTabFunction = function(p_table) {
-
-		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<i class="fas fa-table icon-tab-title"></i><span id="tab_title"> ' + p_table + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
-            false,
-            null,
-            null,
-            null,
-            removeTab,
-            true,
-            function() {
-              if(this.tag != null) {
-                refreshHeights();
-              }
-            }
-        );
-		var v_tab_title_span = document.getElementById('tab_title');
-		v_tab_title_span.id = 'tab_title_' + v_tab.id;
-		var v_tab_close_span = document.getElementById('tab_close');
-		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function(e) {
-      var v_current_tab = v_tab;
-      beforeCloseTab(e,
-        function() {
-          removeTab(v_current_tab);
-        });
-		};
-		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
-
-		var v_html = "<span class='query_info' style='margin-left: 10px;'>Table Name: </span><input type='text' id='txt_tableNameAlterTable_" + v_tab.id + "' onchange='changeTableName()' style='margin: 10px;'/>" +
-		"<button id='bt_saveAlterTable_" + v_tab.id + "' onclick='saveAlterTable()' style='visibility: hidden;'>Save Changes</button>" +
-        "        <div id='alter_tabs_" + v_tab.id + "' style='margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>" +
-	    "            <ul>" +
-	    "            <li id='alter_tabs_" + v_tab.id + "_tab1'>Columns</li>" +
-	    "            <li id='alter_tabs_" + v_tab.id + "_tab2'>Constraints</li>" +
-	    "            <li id='alter_tabs_" + v_tab.id + "_tab3'>Indexes</li>" +
-	  	"			</ul>" +
-	  	"			<div id='div_alter_tabs_" + v_tab.id + "_tab1'>" +
-	  	"				<div style='padding: 20px;'>" +
-		"                	<div id='div_alter_table_data_" + v_tab.id + "' style='height: 400px; overflow: hidden;'></div>" +
-		"                </div>" +
-	  	"			</div>" +
-	  	"			<div id='div_alter_tabs_" + v_tab.id + "_tab2'>" +
-	  	"				<button id='bt_newConstraintAlterTable_" + v_tab.id + "' onclick='newConstraintAlterTable()' style='margin-left: 20px; margin-top: 20px;'>New Constraint</button>" +
-	  	"				<div style='padding: 20px;'>" +
-	  	"					<div id='div_alter_constraint_data_" + v_tab.id + "' style='width: 100%; height: 400px; overflow: hidden;'></div>" +
-	  	"				</div>" +
-	  	"			</div>" +
-	  	"			<div id='div_alter_tabs_" + v_tab.id + "_tab3'>" +
-	  	"				<button id='bt_newIndexAlterTable_" + v_tab.id + "' onclick='newIndexAlterTable()' style='display: block; margin-left: 20px; margin-top: 20px;'>New Index</button>" +
-	  	"				<div style='padding: 20px;'>" +
-	  	"					<div id='div_alter_index_data_" + v_tab.id + "' style='width: 100%; height: 400px; overflow: hidden;'></div>" +
-	  	"				</div>" +
-	  	"			</div>" +
-  		"		</div>";
-
-		var v_div = document.getElementById('div_' + v_tab.id);
-		v_div.innerHTML = v_html;
-
-		var v_curr_tabs = createTabControl('alter_tabs_' + v_tab.id,0,null);
-
-
-		var v_tag = {
-			mode: 'alter',
-			txtTableName: document.getElementById('txt_tableNameAlterTable_' + v_tab.id),
-			btSave: document.getElementById('bt_saveAlterTable_' + v_tab.id),
-			btNewConstraint: document.getElementById('bt_newConstraintAlterTable_' + v_tab.id),
-			btNewIndex: document.getElementById('bt_newIndexAlterTable_' + v_tab.id),
-			htColumns: null,
-			htConstraints: null,
-			htIndexes: null,
-			htDivColumns: document.getElementById('div_alter_table_data_' + v_tab.id),
-			htDivConstraints: document.getElementById('div_alter_constraint_data_' + v_tab.id),
-			htDivIndexes: document.getElementById('div_alter_index_data_' + v_tab.id),
-			tab_title_span : v_tab_title_span,
-			tabControl: v_curr_tabs,
-			alterTableObject: { mode: null },
-      tabCloseSpan: v_tab_close_span
-		};
-
-		v_curr_tabs.tabList[0].elementLi.onclick = function() {
-
-			v_curr_tabs.selectTabIndex(0);
-			v_tag.alterTableObject.window = 'columns';
-      refreshHeights();
-		}
-
-		v_curr_tabs.tabList[1].elementLi.onclick = function() {
-
-			v_curr_tabs.selectTabIndex(1);
-			v_tag.alterTableObject.window = 'constraints';
-      refreshHeights();
-		}
-
-		v_curr_tabs.tabList[2].elementLi.onclick = function() {
-
-			if (v_tag.alterTableObject.mode!='alter')
-				showAlert('Create the table first.');
-			else {
-				v_curr_tabs.selectTabIndex(2);
-				v_tag.alterTableObject.window = 'indexes';
-        refreshHeights();
-			}
-
-		}
-
-		v_curr_tabs.selectTabIndex(0);
-
-		v_tab.tag = v_tag;
-
-    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,function(e) {showMenuNewTab(e); },null,null,null,null,null,false);
-    v_add_tab.tag = {
-      mode: 'add'
-    }
-
-    setTimeout(function() {
-      refreshHeights();
-    },10);
-
-	};
+	// var v_createAlterTableTabFunction = function(p_table) {
+	//
+	// 	v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
+	// 	var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+  //           '<i class="fas fa-table icon-tab-title"></i><span id="tab_title"> ' + p_table + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+  //           false,
+  //           null,
+  //           null,
+  //           null,
+  //           removeTab,
+  //           true,
+  //           function() {
+  //             if(this.tag != null) {
+  //               refreshHeights();
+  //             }
+  //           }
+  //       );
+	// 	var v_tab_title_span = document.getElementById('tab_title');
+	// 	v_tab_title_span.id = 'tab_title_' + v_tab.id;
+	// 	var v_tab_close_span = document.getElementById('tab_close');
+	// 	v_tab_close_span.id = 'tab_close_' + v_tab.id;
+	// 	v_tab_close_span.onclick = function(e) {
+  //     var v_current_tab = v_tab;
+  //     beforeCloseTab(e,
+  //       function() {
+  //         removeTab(v_current_tab);
+  //       });
+	// 	};
+	// 	v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+	//
+	// 	var v_html = "<span class='query_info' style='margin-left: 10px;'>Table Name: </span><input type='text' id='txt_tableNameAlterTable_" + v_tab.id + "' onchange='changeTableName()' style='margin: 10px;'/>" +
+	// 	"<button id='bt_saveAlterTable_" + v_tab.id + "' onclick='saveAlterTable()' style='visibility: hidden;'>Save Changes</button>" +
+  //       "        <div id='alter_tabs_" + v_tab.id + "' style='margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>" +
+	//     "            <ul>" +
+	//     "            <li id='alter_tabs_" + v_tab.id + "_tab1'>Columns</li>" +
+	//     "            <li id='alter_tabs_" + v_tab.id + "_tab2'>Constraints</li>" +
+	//     "            <li id='alter_tabs_" + v_tab.id + "_tab3'>Indexes</li>" +
+	//   	"			</ul>" +
+	//   	"			<div id='div_alter_tabs_" + v_tab.id + "_tab1'>" +
+	//   	"				<div style='padding: 20px;'>" +
+	// 	"                	<div id='div_alter_table_data_" + v_tab.id + "' style='height: 400px; overflow: hidden;'></div>" +
+	// 	"                </div>" +
+	//   	"			</div>" +
+	//   	"			<div id='div_alter_tabs_" + v_tab.id + "_tab2'>" +
+	//   	"				<button id='bt_newConstraintAlterTable_" + v_tab.id + "' onclick='newConstraintAlterTable()' style='margin-left: 20px; margin-top: 20px;'>New Constraint</button>" +
+	//   	"				<div style='padding: 20px;'>" +
+	//   	"					<div id='div_alter_constraint_data_" + v_tab.id + "' style='width: 100%; height: 400px; overflow: hidden;'></div>" +
+	//   	"				</div>" +
+	//   	"			</div>" +
+	//   	"			<div id='div_alter_tabs_" + v_tab.id + "_tab3'>" +
+	//   	"				<button id='bt_newIndexAlterTable_" + v_tab.id + "' onclick='newIndexAlterTable()' style='display: block; margin-left: 20px; margin-top: 20px;'>New Index</button>" +
+	//   	"				<div style='padding: 20px;'>" +
+	//   	"					<div id='div_alter_index_data_" + v_tab.id + "' style='width: 100%; height: 400px; overflow: hidden;'></div>" +
+	//   	"				</div>" +
+	//   	"			</div>" +
+  // 		"		</div>";
+	//
+	// 	var v_div = document.getElementById('div_' + v_tab.id);
+	// 	v_div.innerHTML = v_html;
+	//
+	// 	var v_curr_tabs = createTabControl('alter_tabs_' + v_tab.id,0,null);
+	//
+	//
+	// 	var v_tag = {
+	// 		mode: 'alter',
+	// 		txtTableName: document.getElementById('txt_tableNameAlterTable_' + v_tab.id),
+	// 		btSave: document.getElementById('bt_saveAlterTable_' + v_tab.id),
+	// 		btNewConstraint: document.getElementById('bt_newConstraintAlterTable_' + v_tab.id),
+	// 		btNewIndex: document.getElementById('bt_newIndexAlterTable_' + v_tab.id),
+	// 		htColumns: null,
+	// 		htConstraints: null,
+	// 		htIndexes: null,
+	// 		htDivColumns: document.getElementById('div_alter_table_data_' + v_tab.id),
+	// 		htDivConstraints: document.getElementById('div_alter_constraint_data_' + v_tab.id),
+	// 		htDivIndexes: document.getElementById('div_alter_index_data_' + v_tab.id),
+	// 		tab_title_span : v_tab_title_span,
+	// 		tabControl: v_curr_tabs,
+	// 		alterTableObject: { mode: null },
+  //     tabCloseSpan: v_tab_close_span
+	// 	};
+	//
+	// 	v_curr_tabs.tabList[0].elementLi.onclick = function() {
+	//
+	// 		v_curr_tabs.selectTabIndex(0);
+	// 		v_tag.alterTableObject.window = 'columns';
+  //     refreshHeights();
+	// 	}
+	//
+	// 	v_curr_tabs.tabList[1].elementLi.onclick = function() {
+	//
+	// 		v_curr_tabs.selectTabIndex(1);
+	// 		v_tag.alterTableObject.window = 'constraints';
+  //     refreshHeights();
+	// 	}
+	//
+	// 	v_curr_tabs.tabList[2].elementLi.onclick = function() {
+	//
+	// 		if (v_tag.alterTableObject.mode!='alter')
+	// 			showAlert('Create the table first.');
+	// 		else {
+	// 			v_curr_tabs.selectTabIndex(2);
+	// 			v_tag.alterTableObject.window = 'indexes';
+  //       refreshHeights();
+	// 		}
+	//
+	// 	}
+	//
+	// 	v_curr_tabs.selectTabIndex(0);
+	//
+	// 	v_tab.tag = v_tag;
+	//
+  //   var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,function(e) {showMenuNewTab(e); },null,null,null,null,null,false);
+  //   v_add_tab.tag = {
+  //     mode: 'add'
+  //   }
+	//
+  //   setTimeout(function() {
+  //     refreshHeights();
+  //   },10);
+	//
+	// };
 
   // var v_createDebuggerTabFunction = function(p_function) {
 	//

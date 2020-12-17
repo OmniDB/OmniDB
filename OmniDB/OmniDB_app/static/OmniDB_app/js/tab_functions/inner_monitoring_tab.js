@@ -42,7 +42,7 @@ var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
     p_selectFunction: function() {
       document.title = 'OmniDB'
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
       }
     },
     p_closeFunction: function(e,p_tab) {
@@ -92,6 +92,18 @@ var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
 
   var v_bt_refresh = document.getElementById('bt_refresh_' + v_tab.id);
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.div_result) {
+      v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
+      setTimeout(function(){
+        if (v_tab_tag.ht!=null) {
+          v_tab_tag.ht.render();
+        }
+      },400);
+    }
+  }
+
   var v_tag = {
     tab_id: v_tab.id,
     tabTitle: 'teste',
@@ -107,7 +119,8 @@ var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
     ht: null,
     query: p_query,
     actions: p_actions,
-    mode: 'monitor_grid'
+    mode: 'monitor_grid',
+    resize: v_resizeFunction
   };
 
   //Adding action to button
@@ -132,7 +145,7 @@ var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
   }
 
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
     refreshMonitoring(v_tag);
   },10);
 

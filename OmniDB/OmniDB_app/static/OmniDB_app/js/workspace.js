@@ -52,6 +52,7 @@ $(function () {
         p_selectable: false,
         p_clickFunction: function(e) {
           v_connTabControl.toggleTabMenu();
+          refreshHeights();
         },
       }
     );
@@ -139,8 +140,7 @@ function getDatabaseList(p_init, p_callback) {
 	execAjax('/get_database_list/',
 			JSON.stringify({}),
 			function(p_return) {
-
-				v_connTabControl.tag.connections = p_return.v_data.v_connections;
+                v_connTabControl.tag.connections = p_return.v_data.v_connections;
 
 				v_connTabControl.tag.groups = p_return.v_data.v_groups;
 				v_connTabControl.tag.remote_terminals = p_return.v_data.v_remote_terminals;
@@ -275,6 +275,9 @@ function changeDatabase(p_value) {
   }
   else if (v_conn_object.v_db_type=='mariadb') {
     getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
+  }
+  else if (v_conn_object.v_db_type=='sqlite') {
+    getTreeSqlite(v_connTabControl.selectedTab.tag.divTree.id);
   }
 
 }
@@ -591,12 +594,13 @@ var resizeSnippetPanel = async function(p_left_pos_x = false) {
 
         let v_left_pos_x = v_div_left.getBoundingClientRect().width;
         if (p_left_pos_x) {
-          v_left_pos_x = p_left_pos_x;
+          var v_div_left_offset = v_div_left.getBoundingClientRect().left;
+          v_left_pos_x = p_left_pos_x - v_div_left_offset;
         }
 
         var v_pixel_value = (v_left_pos_x > 50 && v_left_pos_x < v_max_allowed_left_width)
         ? v_left_pos_x
-        : 80;
+        : 120;
 
         var v_left_width_value = v_pixel_value + 'px';
 
@@ -751,7 +755,10 @@ function resizeConnectionHorizontal(event) {
 function resizeConnectionHorizontalEnd(event) {
 
 	document.body.removeEventListener("mouseup", resizeConnectionHorizontalEnd);
-	document.getElementById('horizontal-resize-line').remove();
+  var v_horizontal_line = document.getElementById('horizontal-resize-line');
+  if (v_horizontal_line) {
+    document.getElementById('horizontal-resize-line').remove();
+  }
 
 	document.body.removeEventListener(
 		'mousemove',
@@ -759,13 +766,19 @@ function resizeConnectionHorizontalEnd(event) {
 	)
 
 	var v_div_left = v_connTabControl.selectedTab.tag.divLeft;
-	var v_div_right = v_connTabControl.selectedTab.tag.divRight;
-
-  var v_offsetLeft = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().left;
+  var v_div_right = v_connTabControl.selectedTab.tag.divRight;
   var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
 
-  var v_mousePosX = event.x;
   var v_paddingCompensation = 8;
+  var v_offsetLeft = v_div_left.getBoundingClientRect().left;
+  var v_mousePosX = event.x;
+
+  // if (event) {
+  //   v_mousePosX = event.x;
+  // }
+  // else {
+  //   v_mousePosX = v_offsetLeft + v_div_left.getBoundingClientRect().width - v_paddingCompensation;
+  // }
 
   var v_pixel_value = (v_mousePosX > v_offsetLeft)
   ? (v_paddingCompensation + v_mousePosX - v_offsetLeft)
@@ -774,12 +787,12 @@ function resizeConnectionHorizontalEnd(event) {
   var v_left_width_value = v_pixel_value + 'px';
 
   v_div_left.style['max-width'] = v_left_width_value;
-  v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
+  v_div_left.style['width'] = v_left_width_value;
 
-  var v_right_width_value = (v_totalWidth - v_pixel_value) + 'px';
-
-  v_div_right.style['max-width'] = v_right_width_value;
-  v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
+  // var v_right_width_value = (v_totalWidth - v_pixel_value) + 'px';
+  //
+  // v_div_right.style['max-width'] = v_right_width_value;
+  // v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
@@ -894,9 +907,9 @@ function refreshHeights(p_all) {
 
   setTimeout(function(){
     //Adjusting tree height
-    if (p_all) {
-      refreshTreeHeight();
-    }
+    // if (p_all) {
+    //   refreshTreeHeight();
+    // }
 
     if (v_connections_data && v_connections_data.v_active) {
       v_connections_data.ht.render();
@@ -906,15 +919,7 @@ function refreshHeights(p_all) {
       v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - (1.5)*v_font_size + 'px';
     }
     if (v_connTabControl.selectedTab.tag.mode=='connection') {
-      var v_div_left = v_connTabControl.selectedTab.tag.divLeft;
-      var v_div_right = v_connTabControl.selectedTab.tag.divRight;
-      var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
-      var v_div_left_width_value = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().width;
-      v_div_left.style['max-width'] = v_div_left_width_value + 'px';
-      v_div_left.style['flex'] = '0 0 ' + v_div_left_width_value + 'px';
-      var v_right_width_value = v_totalWidth - v_div_left_width_value;
-      v_div_right.style['max-width'] = v_right_width_value + 'px';
-      v_div_right.style['flex'] = '0 0 ' + v_right_width_value + 'px';
+      refreshOuterConnectionHeights();
     }
     else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal') {
       v_connTabControl.selectedTab.tag.div_console.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.div_console).offset().top - (1.25)*v_font_size + 'px';
@@ -925,102 +930,14 @@ function refreshHeights(p_all) {
     if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
       var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-      if (v_tab_tag.mode=='monitor_unit') {
-        var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - v_font_size + 'px';
-        v_tab_tag.editorDiv.style.height = v_new_height;
-        v_tab_tag.editorDataDiv.style.height = v_new_height;
-        v_tab_tag.editor.resize();
-        v_tab_tag.editor_data.resize();
+      if (v_tab_tag.mode=='console' || v_tab_tag.mode=='debug' || v_tab_tag.mode=='edit' || v_tab_tag.mode=='graph' || v_tab_tag.mode=='monitor_dashboard' || v_tab_tag.mode=='monitor_grid' || v_tab_tag.mode=='monitor_unit' || v_tab_tag.mode=='query' || v_tab_tag.mode=='website' || v_tab_tag.mode=='website_outer') {
+        v_tab_tag.resize();
       }
-      else if (v_tab_tag.mode=='query') {
-        if (v_tab_tag.currQueryTab=='data') {
-          v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
-          setTimeout(function(){
-            if (v_tab_tag.ht!=null) {
-              v_tab_tag.ht.render();
-            }
-            if(v_tab_tag.editor != null) {
-              v_tab_tag.editor.resize();
-            }
-          },400);
-        }
-        else if (v_tab_tag.currQueryTab=='message') {
-          v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - (1.25)*v_font_size + 'px';
-        }
-        else if (v_tab_tag.currQueryTab=='explain') {
-          v_tab_tag.div_explain_default.style.height = window.innerHeight - $(v_tab_tag.div_explain_default).offset().top - (1.25)*v_font_size + 'px';
-          v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - (1.25)*v_font_size + 'px';
-          setTimeout(function(){
-            if (v_tab_tag.explainControl) {
-              v_tab_tag.explainControl.resize();
-            }
-          },400);
-        }
-      }
-      else if (v_tab_tag.mode=='console') {
-        v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - (1.25)*v_font_size - 38 + 'px';
-        v_tab_tag.editor_console.resize();
-        v_tab_tag.editor_input.resize();
-        v_tab_tag.editor_console.fit();
-      }
-      else if (v_tab_tag.mode=='debug') {
-        v_tab_tag.editor.resize();
-        if (v_tab_tag.currDebugTab=='variable') {
-          v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - (1.25)*v_font_size + 'px';
-          if (v_tab_tag.htVariable!=null)
-          v_tab_tag.htVariable.render();
-        }
-        else if (v_tab_tag.currDebugTab=='parameter') {
-          v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - (1.25)*v_font_size + 'px';
-          if (v_tab_tag.htParameter!=null)
-          v_tab_tag.htParameter.render();
-        }
-        else if (v_tab_tag.currDebugTab=='result') {
-          v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
-          if (v_tab_tag.htResult!=null)
-          v_tab_tag.htResult.render();
-        }
-        else if (v_tab_tag.currDebugTab=='message') {
-          v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - (1.25)*v_font_size + 'px';
-        }
-        else if (v_tab_tag.currDebugTab=='statistics') {
-          v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - (1.25)*v_font_size + 'px';
-          if (v_tab_tag.chart!=null)
-          v_tab_tag.chart.update();
-        }
-      }
-      else if (v_tab_tag.mode=='monitor_grid') {
-        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
-        setTimeout(function(){
-          if (v_tab_tag.ht!=null) {
-            v_tab_tag.ht.render();
-          }
-        },400);
-      }
-      else if (v_tab_tag.mode=='query_history') {
-        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.75)*v_font_size + 'px';
-        if (v_tab_tag.ht!=null)
-        v_tab_tag.ht.render();
-      }
-      else if (v_tab_tag.mode=='graph') {
-        v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - (0.833)*v_font_size + "px";
-
-      }
-      else if (v_tab_tag.mode=='website') {
-        v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - (0.833)*v_font_size + "px";
-      }
-      else if (v_tab_tag.mode=='website_outer') {
-        v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - (0.833)*v_font_size + "px";
-      }
-      else if (v_tab_tag.mode=='edit') {
-        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (0.833)*v_font_size + 'px';
-        if (v_tab_tag.editDataObject.ht!=null) {
-          v_tab_tag.editDataObject.ht.render();
-        }
-      }
-      else if (v_tab_tag.mode=='monitor_dashboard') {
-        v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - (0.833)*v_font_size + "px";
-      }
+      // else if (v_tab_tag.mode=='query_history') {
+      //   v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.75)*v_font_size + 'px';
+      //   if (v_tab_tag.ht!=null)
+      //   v_tab_tag.ht.render();
+      // }
       else if (v_tab_tag.mode=='alter') {
         if (v_tab_tag.alterTableObject.window=='columns') {
           var v_height = window.innerHeight - $(v_tab_tag.htDivColumns).offset().top - 45;
@@ -1049,9 +966,10 @@ function refreshHeights(p_all) {
           v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
         }
       }
-      // Updating tree sizes
-      refreshTreeHeight();
     }
+
+    // Updating tree sizes
+    refreshTreeHeight();
 
     // Hooks
     if (v_connTabControl.tag.hooks.windowResize.length>0) {
@@ -1088,10 +1006,6 @@ function refreshTreeHeight() {
 		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 15;
 		v_tag.divDDL.style.height = v_height + "px";
 		v_tag.ddlEditor.resize();
-	}
-	else if (v_tag.mode=='snippets') {
-		var v_height  = window.innerHeight - $(v_tag.divTree).offset().top;
-		v_tag.divTree.style.height = v_height + "px";
 	}
 }
 
@@ -1492,6 +1406,14 @@ function showMenuNewTab(e) {
 		v_option_list,
 		null);
 
+}
+
+function toggleTreeContainer() {
+  var v_tab_tag = v_connTabControl.selectedTab.tag;
+  if (v_tab_tag.divLeft) {
+    $(v_tab_tag.divLeft).toggleClass('omnidb__workspace__div-left--shrink');
+    refreshHeights();
+  }
 }
 
 function toggleTreeTabsContainer(p_target_id,p_horizonta_line_id) {

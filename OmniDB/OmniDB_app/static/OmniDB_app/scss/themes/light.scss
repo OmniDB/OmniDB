@@ -33,6 +33,10 @@ SOFTWARE.
     background-color: #F4F4F4;
   }
 
+  iframe {
+    border-color: #E2E2E2;
+  }
+
   .omnidb__theme-bg--menu-primary {
     background-color: #4A81D4;
     &::-webkit-scrollbar-track {
@@ -70,7 +74,8 @@ SOFTWARE.
     }
   }
 
-  .omnidb__workspace {
+  .omnidb__workspace,
+  .omnidb__snippets {
     &__div-left {
       background-color: #FFFFFF;
     }

@@ -1,28 +1,36 @@
-FROM debian:stable-slim
+FROM python:latest
 
-ENV OMNIDB_VERSION=2.17.0
-ENV SERVICE_USER=omnidb
+LABEL maintainer="OmniDB team"
 
-WORKDIR /${SERVICE_USER}
+ARG OMNIDB_VERSION=3.0.3b
 
-RUN  adduser --system --home /${SERVICE_USER} --no-create-home ${SERVICE_USER} \
-  && mkdir -p /${SERVICE_USER} \
-  && chown -R ${SERVICE_USER}.root /${SERVICE_USER} \
-  && chmod -R g+w /${SERVICE_USER} \
-  && apt-get update \
-  && apt-get -y upgrade \
-  && apt-get install -y wget dumb-init \
-  && if [ ! -e '/bin/systemctl' ]; then ln -s /bin/echo /bin/systemctl; fi \
-  && rm -rf /var/lib/apt/lists/*
+SHELL ["/bin/bash", "-c"]
 
-RUN wget -q https://omnidb.org/dist/${OMNIDB_VERSION}/omnidb-server_${OMNIDB_VERSION}-debian-amd64.deb \
-  && dpkg -i omnidb-server_${OMNIDB_VERSION}-debian-amd64.deb \
-  && rm -rf omnidb-server_${OMNIDB_VERSION}-debian-amd64.deb
+USER root
 
-USER ${SERVICE_USER}
-  
+RUN addgroup --system omnidb \
+    && adduser --system omnidb --ingroup omnidb \
+    && apt-get update \
+    && apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev vim -y
+
+USER omnidb:omnidb
+ENV HOME /home/omnidb
+WORKDIR ${HOME}
+
+RUN wget https://github.com/OmniDB/OmniDB/archive/${OMNIDB_VERSION}.tar.gz \
+    && tar -xvzf ${OMNIDB_VERSION}.tar.gz \
+    && mv OmniDB-${OMNIDB_VERSION} OmniDB
+
+WORKDIR ${HOME}/OmniDB
+
+RUN pip install -r requirements.txt
+
+WORKDIR ${HOME}/OmniDB/OmniDB
+
+RUN sed -i "s/LISTENING_ADDRESS    = '127.0.0.1'/LISTENING_ADDRESS    = '0.0.0.0'/g" config.py \
+    && python omnidb-server.py --init \
+    && python omnidb-server.py --dropuser=admin
+
 EXPOSE 8000
-EXPOSE 25482
 
-ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD ["omnidb-server", "-H", "0.0.0.0"]
+CMD python omnidb-server.py

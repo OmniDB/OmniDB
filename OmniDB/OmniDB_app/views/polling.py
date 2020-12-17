@@ -1328,17 +1328,20 @@ def thread_query_edit_data(self,args):
     }
 
     try:
+        v_session = args['v_session']
+        v_database = args['v_database']
+
         v_table          = args['v_table']
-        v_schema         = args['v_schema']
+
+        if v_database.v_has_schema:
+            v_schema         = args['v_schema']
+
         v_filter         = args['v_filter']
         v_count          = args['v_count']
         v_pk_list        = args['v_pk_list']
         v_columns        = args['v_columns']
         v_tab_id         = args['v_tab_id']
         v_client_object  = args['v_client_object']
-
-        v_session = args['v_session']
-        v_database = args['v_database']
 
         try:
             if v_database.v_has_schema:
@@ -1400,16 +1403,19 @@ def thread_save_edit_data(self,args):
     }
 
     try:
+        v_session = args['v_session']
+        v_database = args['v_database']
+
         v_table          = args['v_table']
-        v_schema         = args['v_schema']
+
+        if v_database.v_has_schema:
+            v_schema         = args['v_schema']
+        
         v_data_rows      = args['v_data_rows']
         v_rows_info      = args['v_rows_info']
         v_pk_info        = args['v_pk_info']
         v_columns        = args['v_columns']
         v_client_object  = args['v_client_object']
-
-        v_session = args['v_session']
-        v_database = args['v_database']
 
         if v_database.v_has_schema:
             v_table_name = v_schema + '.' + v_table

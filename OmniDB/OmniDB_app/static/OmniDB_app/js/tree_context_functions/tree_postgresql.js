@@ -34,18 +34,18 @@ function tabSQLTemplate(p_tab_name, p_template, p_showTip=true) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(
         0, 0, true);
 
-    if(p_showTip) {
-      var v_instance = new Tooltip($(v_connTabControl.selectedTab.tag.tabControl.selectedLi),{
-        title: 'Adjust command and run!',
-        placement: "bottom",
-        container: 'body',
-        offset: 100
-      });
-      v_instance.show();
-      window.setTimeout(function() {
-          v_instance.dispose();
-      }, 4000);
-    }
+    // if(p_showTip) {
+    //   var v_instance = new Tooltip($(v_connTabControl.selectedTab.tag.tabControl.selectedLi),{
+    //     title: 'Adjust command and run!',
+    //     placement: "bottom",
+    //     container: 'body',
+    //     offset: 100
+    //   });
+    //   v_instance.show();
+    //   window.setTimeout(function() {
+    //       v_instance.dispose();
+    //   }, 4000);
+    // }
 }
 
 function tabAdvancedObjectSearch(node) {
@@ -6262,7 +6262,7 @@ function getUniquesColumnsPostgresql(node) {
 
                 for (i = 0; i < p_return.v_data.length; i++) {
 
-                    v_node.createChildNode(p_return.v_data[i][0], false,
+                    node.createChildNode(p_return.v_data[i][0], false,
                         'fas node-all fa-columns node-column', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
                             schema: node.tag.schema

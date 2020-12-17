@@ -763,6 +763,38 @@ function editConnection(p_conn_obj) {
 		document.getElementById('conn_form_use_tunnel').checked = true;
 		document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
 	}
+	else if (p_conn_obj.technology === 'sqlite') {
+		v_disable_list = [
+			'conn_form_connstring',
+			'conn_form_server',
+			'conn_form_port',
+			'conn_form_user',
+			'conn_form_user_pass'
+		];
+		v_enable_list = [
+			'conn_form_database'
+		]
+		if (p_conn_obj.tunnel.enabled) {
+			v_enable_list = v_enable_list.concat([
+				'conn_form_ssh_server',
+				'conn_form_ssh_port',
+				'conn_form_ssh_user',
+				'conn_form_ssh_password',
+				'conn_form_ssh_key',
+				'conn_form_ssh_key_input'
+			]);
+		}
+		else {
+			v_disable_list = v_disable_list.concat([
+			 'conn_form_ssh_server',
+			 'conn_form_ssh_port',
+			 'conn_form_ssh_user',
+			 'conn_form_ssh_password',
+			 'conn_form_ssh_key',
+			 'conn_form_ssh_key_input'
+		 ]);
+		}
+	}
 	else {
 		// Has connection string.
 		if (p_conn_obj.conn_string.trim() !== '' && p_conn_obj.conn_string.trim() !== null) {
@@ -791,24 +823,24 @@ function editConnection(p_conn_obj) {
 			];
 		}
 		if (p_conn_obj.tunnel.enabled) {
-			v_enable_list = [
+			v_enable_list = v_enable_list.concat([
 				'conn_form_ssh_server',
 				'conn_form_ssh_port',
 				'conn_form_ssh_user',
 				'conn_form_ssh_password',
 				'conn_form_ssh_key',
 				'conn_form_ssh_key_input'
-			];
+			]);
 		}
 		else {
-			v_disable_list = [
+			v_disable_list = v_disable_list.concat([
 			 'conn_form_ssh_server',
 			 'conn_form_ssh_port',
 			 'conn_form_ssh_user',
 			 'conn_form_ssh_password',
 			 'conn_form_ssh_key',
 			 'conn_form_ssh_key_input'
-		 ];
+		 ]);
 		}
 	}
 
@@ -945,6 +977,19 @@ function updateModalEditConnectionState(e) {
 		v_disable_list.push('conn_form_database');
 		v_disable_list.push('conn_form_user');
 		v_disable_list.push('conn_form_user_pass');
+	}
+	// Case where technology is sqlite.
+	else if (v_technology === 'sqlite') {
+		// Disabled fields
+		v_disable_list.push('conn_form_connstring');
+		v_disable_list.push('conn_form_server');
+		v_disable_list.push('conn_form_port');
+		v_disable_list.push('conn_form_user');
+		v_disable_list.push('conn_form_user_pass');
+		// Enabled fields
+		v_enable_list.push('conn_form_database');
+		// Form cases will check for database.
+		v_form_cases.push('conn_form_database');
 	}
 	// Case where connection string has value.
 	else if (v_use_connection_string !== '' && v_use_connection_string !== null) {

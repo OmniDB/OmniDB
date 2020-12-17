@@ -48,7 +48,7 @@ var v_createDebuggerTabFunction = function(p_function) {
     p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
       }
       if(this.tag != null && this.tag.editor != null) {
           this.tag.editor.focus();
@@ -113,21 +113,21 @@ var v_createDebuggerTabFunction = function(p_function) {
   var v_selectParameterTabFunc = function() {
     v_curr_tabs.selectTabIndex(0);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDebugTab = 'parameter';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Tab selection callback for `variable` tab.
   var v_selectVariableTabFunc = function() {
     v_curr_tabs.selectTabIndex(1);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDebugTab = 'variable';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Tab selection callback for `result` tab.
   var v_selectResultTabFunc = function() {
     v_curr_tabs.selectTabIndex(2);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDebugTab = 'result';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Tab selection callback for `message` tab.
@@ -135,7 +135,7 @@ var v_createDebuggerTabFunction = function(p_function) {
     v_curr_tabs.selectTabIndex(3);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDebugTab = 'message';
     v_tag.div_count_notices.style.display = 'none';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Tab selection callback for `statistics` tab.
@@ -143,7 +143,7 @@ var v_createDebuggerTabFunction = function(p_function) {
     v_curr_tabs.selectTabIndex(4);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDebugTab = 'statistics';
     v_tag.div_count_notices.style.display = 'none';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Creating the `parameter` tab.
@@ -296,6 +296,36 @@ var v_createDebuggerTabFunction = function(p_function) {
     v_editor.focus();
   };
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.currDebugTab) {
+      v_tab_tag.editor.resize();
+      if (v_tab_tag.currDebugTab=='variable') {
+        v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - (1.25)*v_font_size + 'px';
+        if (v_tab_tag.htVariable!=null)
+        v_tab_tag.htVariable.render();
+      }
+      else if (v_tab_tag.currDebugTab=='parameter') {
+        v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - (1.25)*v_font_size + 'px';
+        if (v_tab_tag.htParameter!=null)
+        v_tab_tag.htParameter.render();
+      }
+      else if (v_tab_tag.currDebugTab=='result') {
+        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
+        if (v_tab_tag.htResult!=null)
+        v_tab_tag.htResult.render();
+      }
+      else if (v_tab_tag.currDebugTab=='message') {
+        v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - (1.25)*v_font_size + 'px';
+      }
+      else if (v_tab_tag.currDebugTab=='statistics') {
+        v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - (1.25)*v_font_size + 'px';
+        if (v_tab_tag.chart!=null)
+        v_tab_tag.chart.update();
+      }
+    }
+  }
+
   // Setting all tab_tag params.
   var v_tag = {
     tab_id: v_tab.id,
@@ -322,6 +352,7 @@ var v_createDebuggerTabFunction = function(p_function) {
     state : 0,
     hasDataToRender: false,
     context: null,
+    resize: v_resizeFunction,
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     queryTabControl: v_curr_tabs,
     currDebugTab: null,
@@ -386,7 +417,7 @@ var v_createDebuggerTabFunction = function(p_function) {
 
   // Requesting an update on the workspace layout and sizes.
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
 
   v_editor.focus();

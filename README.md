@@ -1,6 +1,6 @@
 # OmniDB 3.0.3 Beta
 
-## Release Date: *October 28, 2020*
+## Release Date: *December 17, 2020*
 
 ## Release Notes
 
@@ -32,7 +32,7 @@
   - Improvements
     - Added snippets and custom monitoring units to the OmniDB 2 to 3 automatic migration process
 
-- 3.0.3 changes
+- 3.0.2 changes
   - Re-included
     - Explain visualizer component from OmniDB 2.x
     - Shortcuts for issueing Explain and Explain Analyze
@@ -43,6 +43,18 @@
     - Added a toggle to switch between the old and new explain components
     - Improved client-side CPU usage performance (browser rendering gpu-intensive processes)
     - Added a new node-spin loading icon for dark themes with improved visibility
+
+- 3.0.3 changes
+  - Bug Fixes
+    - Query Tab: Fixed editor key behaviours related to up/down arrows (skipping rows, text selection, text shifting, text indenting)
+    - Console Tab: Fixed issue describe command for tables in PostgreSQL 12+
+    - Console Tab: Fixed background theme color on console output when changing themes
+  - Improvements
+    - Reduced chances of having OmniDB being flagged as a threat by security tools (false-positives)
+    - Outer Menu: Improved layout and behaviour, providing better awareness of the context
+    - Result Grid: Improved resizing behaviours
+    - Added password option on --createconnection
+
 
 
 **Website**: https://omnidb.org

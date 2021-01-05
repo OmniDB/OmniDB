@@ -1724,9 +1724,9 @@ class PostgreSQL(Generic):
                 v_table = DataTable()
                 if self.v_cursor:
                     if p_blocksize > 0:
-                        self.v_cur.execute('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
+                        self.v_cur.execute('FETCH {0} FROM {1}'.format(p_blocksize, self.v_cursor))
                     else:
-                        self.v_cur.execute('FETCH ALL {0}'.format(self.v_cursor))
+                        self.v_cur.execute('FETCH ALL FROM {0}'.format(self.v_cursor))
                 if self.v_cur.description:
                     for c in self.v_cur.description:
                         v_table.AddColumn(c[0])

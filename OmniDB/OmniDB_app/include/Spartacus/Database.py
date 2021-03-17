@@ -2947,7 +2947,7 @@ class Oracle(Generic):
             return p_cursor.var(cx_Oracle.LONG_BINARY, arraysize = p_cursor.arraysize)
     def Open(self, p_autocommit=True):
         try:
-            self.v_con = cx_Oracle.connect(self.GetConnectionString())
+            self.v_con = cx_Oracle.connect(self.GetConnectionString(), encoding = "UTF-8", nencoding = "UTF-8")
             self.v_con.outputtypehandler = self.Handler
             self.v_cur = self.v_con.cursor()
             self.v_start = True

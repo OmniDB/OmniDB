@@ -71,7 +71,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     }
 
     let v_icon = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_conn.v_db_type;
-    if (v_conn.v_db_type === 'postgresql' || v_conn.v_db_type === 'oracle'|| v_conn.v_db_type === 'mariadb' || v_conn.v_db_type === 'mysql') {
+    if (v_conn.v_db_type === 'postgresql' || v_conn.v_db_type === 'oracle'|| v_conn.v_db_type === 'mariadb' || v_conn.v_db_type === 'mysql'|| v_conn.v_db_type === 'mssql') {
       v_icon += '.svg"/>';
     }
     else {

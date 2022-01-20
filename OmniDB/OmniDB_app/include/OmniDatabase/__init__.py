@@ -28,6 +28,7 @@ from OmniDB_app.include.OmniDatabase.PostgreSQL import PostgreSQL
 from OmniDB_app.include.OmniDatabase.Oracle import Oracle
 from OmniDB_app.include.OmniDatabase.MariaDB import MariaDB
 from OmniDB_app.include.OmniDatabase.MySQL import MySQL
+from OmniDB_app.include.OmniDatabase.MsSQL import MsSQL
 
 '''
 ------------------------------------------------------------------------
@@ -59,3 +60,5 @@ class Generic(object):
             return MySQL(p_server, p_port, p_service, p_user, p_password, p_conn_id, p_alias, p_conn_string, p_parse_conn_string)
         if p_db_type == 'sqlite':
             return SQLite(p_service, p_conn_id, p_alias, p_foreignkeys)
+        if p_db_type == 'mssql':
+            return MsSQL(p_server, p_port, p_service, p_user, p_password, p_conn_id, p_alias, p_conn_string, p_parse_conn_string)

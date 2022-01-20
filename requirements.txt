@@ -9,7 +9,9 @@ sshtunnel
 psycopg2-binary
 RestrictedPython
 cx_Oracle
+pymssql
 PyMySQL
+Spartacus[mssql]
 sqlparse
 pgspecial
 django-sass

@@ -279,6 +279,9 @@ function changeDatabase(p_value) {
   else if (v_conn_object.v_db_type=='sqlite') {
     getTreeSqlite(v_connTabControl.selectedTab.tag.divTree.id);
   }
+  else if (v_conn_object.v_db_type=='mssql') {
+    getTreeMssql(v_connTabControl.selectedTab.tag.divTree.id);
+  }
 
 }
 

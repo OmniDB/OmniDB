@@ -34,6 +34,8 @@ SESSION_COOKIE_NAME = 'omnidb_sessionid'
 # CSRF cookie name
 CSRF_COOKIE_NAME = 'omnidb_csrftoken'
 
+OMNIDB_LOG_LEVEL = 'INFO'
+
 ### PostgreSQL Database Backend ################################################
 
 #DATABASES = {

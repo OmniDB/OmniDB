@@ -464,6 +464,7 @@ class DjangoApplication(object):
         #cherrypy.engine.unsubscribe('graceful', cherrypy.log.reopen_files)
 
         logging.config.dictConfig(OmniDB.settings.LOGGING)
+        logger.setLevel(OmniDB.settings.OMNIDB_LOG_LEVEL)
         #cherrypy.log.error_log.propagate = False
         cherrypy.log.access_log.propagate = False
         self.mount_static(OmniDB.settings.STATIC_URL, OmniDB.settings.STATIC_ROOT)

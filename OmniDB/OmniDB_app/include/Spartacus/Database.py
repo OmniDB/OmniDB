@@ -27,6 +27,7 @@ from abc import ABC, abstractmethod
 import datetime
 import decimal
 import json
+import logging
 import math
 
 import OmniDB_app.include.Spartacus as Spartacus
@@ -2907,6 +2908,8 @@ class Oracle(Generic):
             self.v_expanded = False
             self.v_timing = False
             self.v_encoding = p_encoding
+
+            self._log = logging.getLogger('OmniDB_app.Init')
         else:
             raise Spartacus.Database.Exception("Oracle is not supported. Please install it with 'pip install Spartacus[oracle]'.")
     def GetConnectionString(self):
@@ -2956,6 +2959,7 @@ class Oracle(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
+        self._log.debug(p_sql)
         try:
             v_keep = None
             if self.v_con is None:

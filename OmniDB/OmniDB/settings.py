@@ -15,6 +15,7 @@ DEBUG = custom_settings.DEV_MODE
 DESKTOP_MODE = custom_settings.DESKTOP_MODE
 BASE_DIR = custom_settings.BASE_DIR
 HOME_DIR = custom_settings.HOME_DIR
+OMNIDB_LOG_LEVEL = custom_settings.OMNIDB_LOG_LEVEL
 TEMP_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','temp')
 PLUGINS_DIR = os.path.join(BASE_DIR,'OmniDB_app','plugins')
 PLUGINS_STATIC_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','plugins')
@@ -176,7 +177,7 @@ LOGGING = {
             'filename': os.path.join(HOME_DIR, 'omnidb.log'),
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
-            'formatter': 'standard',
+            'formatter': 'standard'
         },
         'logfile_django': {
             'class':'logging.handlers.RotatingFileHandler',
@@ -204,7 +205,7 @@ LOGGING = {
         'OmniDB_app': {
             'handlers': ['logfile_omnidb','console_omnidb_app'],
             'propagate': False,
-            'level':'INFO',
+            'level': OMNIDB_LOG_LEVEL,
         },
         'cherrypy.error': {
             'handlers': ['logfile_django','console_omnidb_app'],

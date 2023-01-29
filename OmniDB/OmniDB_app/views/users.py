@@ -19,7 +19,7 @@ from django.contrib.auth import update_session_auth_hash
 
 from django.contrib.auth.models import User
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import user_authenticated
 
 @user_authenticated
 def get_users(request):
@@ -80,16 +80,17 @@ def new_user(request):
 
     try:
         for user in v_data:
-            new_user = User.objects.create_user(username=user[0],
-                                     password=user[1],
-                                     email='',
-                                     last_login=timezone.now(),
-                                     is_superuser=False,
-                                     first_name='',
-                                     last_name='',
-                                     is_staff=False,
-                                     is_active=True,
-                                     date_joined=timezone.now())
+            new_user = User.objects.create_user(
+                username=user[0],
+                password=user[1],
+                email='',
+                last_login=timezone.now(),
+                is_superuser=False,
+                first_name='',
+                last_name='',
+                is_staff=False,
+                is_active=True,
+                date_joined=timezone.now())
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -149,16 +150,17 @@ def save_users(request):
         # Creating new users.
         v_data_new = v_data['new']
         for user_item in v_data_new:
-            new_user = User.objects.create_user(username=user_item[0],
-                                     password=user_item[1],
-                                     email='',
-                                     last_login=timezone.now(),
-                                     is_superuser=False,
-                                     first_name='',
-                                     last_name='',
-                                     is_staff=False,
-                                     is_active=True,
-                                     date_joined=timezone.now())
+            new_user = User.objects.create_user(
+                username=user_item[0],
+                password=user_item[1],
+                email='',
+                last_login=timezone.now(),
+                is_superuser=False,
+                first_name='',
+                last_name='',
+                is_staff=False,
+                is_active=True,
+                date_joined=timezone.now())
 
         # Editting users.
         v_data_edited = v_data['edited']

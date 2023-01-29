@@ -232,10 +232,10 @@ class PrettyTable(object):
 
     if py3k:
         def __str__(self):
-           return self.__unicode__()
+            return self.__unicode__()
     else:
         def __str__(self):
-           return self.__unicode__().encode(self.encoding)
+            return self.__unicode__().encode(self.encoding)
 
     def __unicode__(self):
         return self.get_string()
@@ -285,14 +285,14 @@ class PrettyTable(object):
         # Check for appropriate length
         if self._field_names:
             try:
-               assert len(val) == len(self._field_names)
+                assert len(val) == len(self._field_names)
             except AssertionError:
-               raise Exception("Field name list has incorrect number of values, (actual) %d!=%d (expected)" % (len(val), len(self._field_names)))
+                raise Exception("Field name list has incorrect number of values, (actual) %d!=%d (expected)" % (len(val), len(self._field_names)))
         if self._rows:
             try:
-               assert len(val) == len(self._rows[0])
+                assert len(val) == len(self._rows[0])
             except AssertionError:
-               raise Exception("Field name list has incorrect number of values, (actual) %d!=%d (expected)" % (len(val), len(self._rows[0])))
+                raise Exception("Field name list has incorrect number of values, (actual) %d!=%d (expected)" % (len(val), len(self._rows[0])))
         # Check for uniqueness
         try:
             assert len(val) == len(set(val))
@@ -595,7 +595,7 @@ class PrettyTable(object):
         int_format - integer format string"""
         return self._int_format
     def _set_int_format(self, val):
-#        self._validate_option("int_format", val)
+        # self._validate_option("int_format", val)
         for field in self._field_names:
             self._int_format[field] = val
     int_format = property(_get_int_format, _set_int_format)
@@ -607,7 +607,7 @@ class PrettyTable(object):
         float_format - floating point format string"""
         return self._float_format
     def _set_float_format(self, val):
-#        self._validate_option("float_format", val)
+        # self._validate_option("float_format", val)
         for field in self._field_names:
             self._float_format[field] = val
     float_format = property(_get_float_format, _set_float_format)
@@ -1015,8 +1015,8 @@ class PrettyTable(object):
             bits = [options["horizontal_char"]]
         # For tables with no data or fieldnames
         if not self._field_names:
-                bits.append(options["junction_char"])
-                return "".join(bits)
+            bits.append(options["junction_char"])
+            return "".join(bits)
         for field, width in zip(self._field_names, self._widths):
             if options["fields"] and field not in options["fields"]:
                 continue
@@ -1072,7 +1072,7 @@ class PrettyTable(object):
         if options["border"] and options["vrules"] == FRAME:
             bits.pop()
             bits.append(options["vertical_char"])
-        if options["border"] and options["hrules"] != NONE:
+        if options["border"] and options["hrules"] is not None:
             bits.append("\n")
             bits.append(self._hrule)
         return "".join(bits)
@@ -1114,18 +1114,18 @@ class PrettyTable(object):
             dHeight = row_height - len(lines)
             if dHeight:
                 if valign == "m":
-                  lines = [""] * int(dHeight / 2) + lines + [""] * (dHeight - int(dHeight / 2))
+                    lines = [""] * int(dHeight / 2) + lines + [""] * (dHeight - int(dHeight / 2))
                 elif valign == "b":
-                  lines = [""] * dHeight + lines
+                    lines = [""] * dHeight + lines
                 else:
-                  lines = lines + [""] * dHeight
+                    lines = lines + [""] * dHeight
 
             y = 0
-            for l in lines:
+            for line in lines:
                 if options["fields"] and field not in options["fields"]:
                     continue
 
-                bits[y].append(" " * lpad + self._justify(l, width, self._align[field]) + " " * rpad)
+                bits[y].append(" " * lpad + self._justify(line, width, self._align[field]) + " " * rpad)
                 if options["border"]:
                     if options["vrules"] == ALL:
                         bits[y].append(self.vertical_char)
@@ -1272,7 +1272,7 @@ class PrettyTable(object):
         aligns = []
         valigns = []
         for field in self._field_names:
-            aligns.append({ "l" : "left", "r" : "right", "c" : "center" }[self._align[field]])
+            aligns.append({"l" : "left", "r" : "right", "c" : "center"}[self._align[field]])
             valigns.append({"t" : "top", "m" : "middle", "b" : "bottom"}[self._valign[field]])
         for row in formatted_rows:
             lines.append("    <tr>")
@@ -1291,8 +1291,8 @@ class PrettyTable(object):
 
 def _char_block_width(char):
     # Basic Latin, which is probably the most common case
-    #if char in xrange(0x0021, 0x007e):
-    #if char >= 0x0021 and char <= 0x007e:
+    # if char in xrange(0x0021, 0x007e):
+    # if char >= 0x0021 and char <= 0x007e:
     if 0x0021 <= char <= 0x007e:
         return 1
     # Chinese, Japanese, Korean (common)
@@ -1409,7 +1409,7 @@ class TableHandler(HTMLParser):
                 for i in range(1,appends):
                     row[0].append("-")
 
-            if row[1] == True:
+            if row[1] is True:
                 self.make_fields_unique(row[0])
                 table.field_names = row[0]
             else:

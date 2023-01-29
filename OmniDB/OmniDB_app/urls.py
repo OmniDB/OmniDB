@@ -300,7 +300,7 @@ if settings.PATH == '':
 else:
     v_url = settings.PATH[1:] + '/'
 
-urlpatterns = [# if you wish to maintain the un-prefixed URL's too
+urlpatterns = [  # if you wish to maintain the un-prefixed URL's too
     re_path(v_url, include(base_urlpatterns)),
     #re_path(r'^subfolder/', include(base_urlpatterns))
 ]

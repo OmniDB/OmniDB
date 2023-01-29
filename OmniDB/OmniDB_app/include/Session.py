@@ -17,7 +17,7 @@ import os
 from collections import OrderedDict
 
 from django.contrib.auth.models import User
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import Connection
 
 import logging
 logger = logging.getLogger('OmniDB_app.Session')
@@ -35,15 +35,17 @@ Session
 ------------------------------------------------------------------------
 '''
 class Session(object):
-    def __init__(self,
-                p_user_id,
-                p_user_name,
-                p_theme,
-                p_font_size,
-                p_super_user,
-                p_user_key,
-                p_csv_encoding,
-                p_csv_delimiter):
+    def __init__(
+        self,
+        p_user_id,
+        p_user_name,
+        p_theme,
+        p_font_size,
+        p_super_user,
+        p_user_key,
+        p_csv_encoding,
+        p_csv_delimiter
+    ):
         self.v_user_id = p_user_id
         self.v_user_name = p_user_name
         self.v_theme = p_theme
@@ -70,41 +72,41 @@ class Session(object):
             self.v_database_index = 0
 
         self.v_databases[p_conn_id] = {
-                                'database': p_database,
-                                'prompt_password': p_prompt_password,
-                                'prompt_timeout': None,
-                                'tunnel': p_tunnel_information,
-                                'tunnel_object': None,
-                                'alias': p_alias,
-                                'technology': p_technology,
-                                'public': p_public
-                                }
+            'database': p_database,
+            'prompt_password': p_prompt_password,
+            'prompt_timeout': None,
+            'tunnel': p_tunnel_information,
+            'tunnel_object': None,
+            'alias': p_alias,
+            'technology': p_technology,
+            'public': p_public
+        }
 
     def RemoveDatabase(self,
                        p_conn_id = None):
-       del self.v_databases[p_conn_id]
+        del self.v_databases[p_conn_id]
 
     def DatabaseReachPasswordTimeout(self,p_database_index):
 
-        v_return = { 'timeout': False, 'message': ''}
+        v_return = {'timeout': False, 'message': ''}
 
         # This region of the code cannot be accessed by multiple threads, so locking is required
         try:
             lock_object = tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id]
-        except:
+        except Exception:
             lock_object = threading.Lock()
             tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id] = lock_object
 
         try:
             lock_object.acquire()
-        except:
+        except Exception:
             None
 
         try:
-            #Create tunnel if enabled
+            # Create tunnel if enabled
             if self.v_databases[p_database_index]['tunnel']['enabled']:
                 v_create_tunnel = False
-                if self.v_databases[p_database_index]['tunnel_object'] != None:
+                if self.v_databases[p_database_index]['tunnel_object'] is not None:
 
                     try:
                         result = 0
@@ -116,7 +118,7 @@ class Session(object):
                         v_create_tunnel = True
                         None
 
-                if self.v_databases[p_database_index]['tunnel_object'] == None or v_create_tunnel:
+                if self.v_databases[p_database_index]['tunnel_object'] is None or v_create_tunnel:
                     try:
                         if self.v_databases[p_database_index]['tunnel']['key'].strip() != '':
                             v_file_name = '{0}'.format(str(time.time())).replace('.','_')
@@ -153,11 +155,11 @@ class Session(object):
                         s.save()
 
                     except Exception as exc:
-                        return { 'timeout': True, 'message': str(exc)}
+                        return {'timeout': True, 'message': str(exc)}
             if self.v_databases[p_database_index]['prompt_password']:
-                #Reached timeout, must request password
+                # Reached timeout, must request password
                 if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
-                    #Try passwordless connection
+                    # Try passwordless connection
                     self.v_databases[p_database_index]['database'].v_connection.v_password = ''
                     v_test = self.v_databases[p_database_index]['database'].TestConnection()
 
@@ -166,20 +168,20 @@ class Session(object):
                         s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                         s['omnidb_session'].v_databases[p_database_index]['database'].v_connection.v_password = ''
                         s.save()
-                        v_return = { 'timeout': False, 'message': ''}
+                        v_return = {'timeout': False, 'message': ''}
                     else:
-                        v_return = { 'timeout': True, 'message': v_test}
-                #Reached half way to timeout, update prompt_timeout
+                        v_return = {'timeout': True, 'message': v_test}
+                # Reached half way to timeout, update prompt_timeout
                 if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
                     s = SessionStore(session_key=self.v_user_key)
                     s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                     s.save()
-        except:
+        except Exception:
             None
 
         try:
             lock_object.release()
-        except:
+        except Exception:
             None
 
         return v_return
@@ -202,11 +204,11 @@ class Session(object):
                 }
 
                 database = OmniDatabase.Generic.InstantiateDatabase(
-    				conn.technology.name,
-    				conn.server,
-    				conn.port,
-    				conn.database,
-    				conn.username,
+                    conn.technology.name,
+                    conn.server,
+                    conn.port,
+                    conn.database,
+                    conn.username,
                     conn.password,
                     conn.id,
                     conn.alias,
@@ -229,19 +231,23 @@ class Session(object):
 
         return v_table
 
-    def Query(self,
-                p_database,
-                p_sql,
-                p_loghistory):
+    def Query(
+        self,
+        p_database,
+        p_sql,
+        p_loghistory
+    ):
         v_table = p_database.v_connection.Query(p_sql,True)
 
         return v_table
 
-    def QueryDataLimited(self,
-                p_database,
-                p_sql,
-                p_count,
-                p_loghistory):
+    def QueryDataLimited(
+        self,
+        p_database,
+        p_sql,
+        p_count,
+        p_loghistory
+    ):
         v_table = p_database.QueryDataLimited(p_sql, p_count)
 
         return v_table

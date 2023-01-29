@@ -18,7 +18,7 @@ class Base:
     def pause(self, p_seconds):
         try:
             WebDriverWait(self.driver, p_seconds).until(EC.title_is('pause'))
-        except:
+        except Exception:
             pass
 
     @classmethod
@@ -44,12 +44,12 @@ class Base:
         if p_expectsuccess:
             try:
                 WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'header')))
-            except:
+            except Exception:
                 WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'div_alert_text')))
         else:
             try:
                 WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'div_alert_text')))
-            except:
+            except Exception:
                 WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'header')))
 
     @classmethod

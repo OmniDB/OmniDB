@@ -94,22 +94,22 @@ class SQLite:
         self.v_can_drop_column = False
         self.v_can_add_constraint = False
         self.v_can_drop_constraint = False
-        self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)";
+        self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)"
         self.v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)"
         self.v_drop_index_command = "drop index #p_index_name#"
         self.v_update_rules = [
             "NO ACTION",
-			"RESTRICT",
-			"SET NULL",
-			"SET DEFAULT",
-			"CASCADE"
+            "RESTRICT",
+            "SET NULL",
+            "SET DEFAULT",
+            "CASCADE"
         ]
         self.v_delete_rules = [
             "NO ACTION",
-			"RESTRICT",
-			"SET NULL",
-			"SET DEFAULT",
-			"CASCADE"
+            "RESTRICT",
+            "SET NULL",
+            "SET DEFAULT",
+            "CASCADE"
         ]
         self.v_reserved_words = []
         self.v_console_help = "Console tab."
@@ -121,23 +121,23 @@ class SQLite:
     def lock_required(function):
         def wrap(self, *args, **kwargs):
             try:
-                if self.v_lock != None:
+                if self.v_lock is not None:
                     self.v_lock.acquire()
-            except:
+            except Exception:
                 None
             try:
                 r = function(self, *args, **kwargs)
-            except:
+            except Exception:
                 try:
-                    if self.v_lock != None:
+                    if self.v_lock is not None:
                         self.v_lock.release()
-                except:
+                except Exception:
                     None
                 raise
             try:
-                if self.v_lock != None:
+                if self.v_lock is not None:
                     self.v_lock.release()
-            except:
+            except Exception:
                 None
             return r
         wrap.__doc__ = function.__doc__
@@ -191,8 +191,8 @@ class SQLite:
     def QueryTables(self):
         return self.v_connection.Query('''
             select name as table_name
-		    from sqlite_master
-			where type = 'table'
+            from sqlite_master
+            where type = 'table'
         ''', True)
 
     @lock_required
@@ -569,8 +569,8 @@ class SQLite:
     def QueryViews(self):
         return self.v_connection.Query('''
             select name as table_name
-		    from sqlite_master
-			where type = 'view'
+            from sqlite_master
+            where type = 'view'
         ''', True)
 
     @lock_required
@@ -811,11 +811,11 @@ class SQLite:
             {2}
             {3}
         '''.format(
-                p_column_list,
-                p_table,
-                p_filter,
-                v_limit
-            ), True
+            p_column_list,
+            p_table,
+            p_filter,
+            v_limit
+        ), True
         )
 
     def TemplateCreateView(self):

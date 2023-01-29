@@ -16,17 +16,16 @@ from OmniDB_app.include.Session import Session
 from datetime import datetime
 
 from RestrictedPython import compile_restricted
-from RestrictedPython.Guards import safe_builtins, full_write_guard, \
-        guarded_iter_unpack_sequence, guarded_unpack_sequence
+from RestrictedPython.Guards import safe_builtins, full_write_guard, guarded_iter_unpack_sequence, guarded_unpack_sequence
 from RestrictedPython.Utilities import utility_builtins
 from RestrictedPython.Eval import default_guarded_getitem
 from RestrictedPython.Eval import RestrictionCapableEval
 
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import MonUnits, MonUnitsConnections, Connection, Technology
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import user_authenticated, database_required
 from OmniDB_app.views.monitoring_units import postgresql as postgresql_units
 from OmniDB_app.views.monitoring_units import mysql as mysql_units
 
@@ -92,7 +91,7 @@ def get_monitor_unit_list(request, v_database):
             for key, mon_unit in monitoring_units_database.items():
                 v_actions = '''<i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0})'></i>'''.format(mon_unit.id)
                 #custom unit, add edit and delete actions
-                if mon_unit.user!=None:
+                if mon_unit.user is not None:
                     v_actions += '''
                     <i title='Edit' class='fas fa-edit action-grid action-edit-monitor' onclick='editMonitorUnit({0})'></i>
                     <i title='Delete' class='fas fa-times action-grid action-close text-danger' onclick='deleteMonitorUnit({0})'></i>
@@ -108,7 +107,7 @@ def get_monitor_unit_list(request, v_database):
         except Exception as exc:
             print(str(exc))
 
-        v_return['v_data'] = { 'id_list': v_id_list, 'data': v_data }
+        v_return['v_data'] = {'id_list': v_id_list, 'data': v_data}
 
     except Exception as exc:
         v_return['v_data'] = str(exc)
@@ -138,7 +137,7 @@ def get_monitor_unit_details(request):
 
     try:
         unit = MonUnits.objects.get(id=v_unit_id)
-        v_return['v_data'] = { 'title': unit.title, 'type': unit.type, 'interval': unit.interval, 'script_chart': unit.script_chart, 'script_data': unit.script_data }
+        v_return['v_data'] = {'title': unit.title, 'type': unit.type, 'interval': unit.interval, 'script_chart': unit.script_chart, 'script_data': unit.script_data}
 
     except Exception as exc:
         v_return['v_data'] = str(exc)
@@ -177,7 +176,7 @@ def get_monitor_units(request, v_database):
         if len(user_units)==0:
             conn_object = Connection.objects.get(id=v_database.v_conn_id)
             for key, mon_unit in monitoring_units.items():
-                if mon_unit['default'] == True and mon_unit['dbms'] == v_database.v_db_type:
+                if mon_unit['default'] is True and mon_unit['dbms'] == v_database.v_db_type:
                     user_unit = MonUnitsConnections(
                         unit=mon_unit['id'],
                         user=request.user,
@@ -202,7 +201,7 @@ def get_monitor_units(request, v_database):
                         'v_interval': user_unit.interval
                     }
                     v_return['v_data'].append(v_unit_data)
-                except:
+                except Exception:
                     user_unit.delete()
             else:
                 #search plugin data
@@ -306,7 +305,7 @@ def save_monitor_unit(request, v_database):
     v_unit_script_data = json_object['p_unit_script_data']
     v_database_index = json_object['p_database_index']
 
-    if v_unit_interval==None:
+    if v_unit_interval is None:
         v_unit_interval = 30
 
     try:
@@ -338,7 +337,7 @@ def save_monitor_unit(request, v_database):
         monitoring_units_database[unit.id] = unit
 
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -557,7 +556,7 @@ def refresh_monitor_units(request, v_database):
                 exec(byte_code, restricted_globals, loc1)
                 data = loc1['result']
 
-                if v_unit_data['v_type']  == 'grid' or v_id['rendered'] == 1:
+                if v_unit_data['v_type'] == 'grid' or v_id['rendered'] == 1:
                     v_unit_data['v_object'] = data
                 elif v_unit_data['v_type'] == 'graph':
                     byte_code = compile_restricted(script_chart, '<inline>', 'exec')
@@ -643,7 +642,7 @@ def test_monitor_script(request, v_database):
         exec(byte_code, restricted_globals, loc1)
         data = loc1['result']
 
-        if v_type  == 'grid':
+        if v_type == 'grid':
             v_return['v_data']['v_object'] = data
         elif v_type == 'graph':
             byte_code = compile_restricted(v_script_chart, '<inline>', 'exec')

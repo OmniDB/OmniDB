@@ -174,14 +174,14 @@ LOGGING = {
         'logfile_omnidb': {
             'class':'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(HOME_DIR, 'omnidb.log'),
-            'maxBytes': 1024*1024*5, # 5 MB
+            'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 5,
             'formatter': 'standard',
         },
         'logfile_django': {
             'class':'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(HOME_DIR, 'omnidb.log'),
-            'maxBytes': 1024*1024*5, # 5 MB
+            'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 5,
             'formatter': 'standard',
             'level':'ERROR',

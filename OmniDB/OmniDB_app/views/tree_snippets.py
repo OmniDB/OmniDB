@@ -12,7 +12,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 
 from django.contrib.auth.models import User
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import SnippetFile, SnippetFolder
 
 from datetime import datetime
 from django.utils.timezone import make_aware
@@ -48,17 +48,17 @@ def build_snippets_object_recursive(p_folders,p_files,p_current_object):
     # Adding files
     for file in p_files:
         # Match
-        if ((file.parent == None and p_current_object['id'] == None) or (file.parent!=None and file.parent.id == p_current_object['id'])):
+        if ((file.parent is None and p_current_object['id'] is None) or (file.parent is not None and file.parent.id == p_current_object['id'])):
             p_current_object['files'].append(
-            {
-                'id': file.id,
-                'name': file.name
-            }
+                {
+                    'id': file.id,
+                    'name': file.name
+                }
             )
     # Adding folders
     for folder in p_folders:
         # Match
-        if ((folder.parent == None and p_current_object['id'] == None) or (folder.parent!=None and folder.parent.id == p_current_object['id'])):
+        if ((folder.parent is None and p_current_object['id'] is None) or (folder.parent is not None and folder.parent.id == p_current_object['id'])):
             v_folder = {
                 'id': folder.id,
                 'name': folder.name,

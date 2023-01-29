@@ -100,7 +100,7 @@ class DataTable(object):
                     v_rowtmp2 = p_row
                     if self.AllTypesStr:
                         for j in range(0, len(v_rowtmp2)):
-                            if v_rowtmp2[j] != None:
+                            if v_rowtmp2[j] is not None:
                                 v_rowtmp2[j] = str(v_rowtmp2[j])
                             else:
                                 v_rowtmp2[j] = ''
@@ -276,7 +276,7 @@ class DataTable(object):
                                     v_pkmatch = False
                                     break
                             if v_pkmatch:
-                                break;
+                                break
                         if v_pkmatch:
                             v_allmatch = True
                             v_row = []
@@ -604,19 +604,19 @@ class Generic(ABC):
     def Special(self, p_sql):
         pass
     def String(self, p_value):
-        if type(p_value) == type(list()):
+        if isinstance(p_value, list):
             ret = self.MogrifyArray(p_value)
         else:
             ret = str(p_value)
         return ret
     def MogrifyValue(self, p_value):
-        if type(p_value) == type(list()):
+        if isinstance(p_value, list):
             ret = self.MogrifyArray(p_value)
-        elif type(p_value) == type(None):
+        elif p_value is None:
             ret = 'null'
-        elif type(p_value) == type(str()):
+        elif isinstance(p_value, str):
             ret = "'{0}'".format(p_value.replace("'", "''"))
-        elif type(p_value) == datetime.datetime:
+        elif isinstance(p_value, datetime.datetime):
             ret = "'{0}'".format(p_value)
         else:
             ret = '{0}'.format(p_value)
@@ -630,13 +630,13 @@ class Generic(ABC):
         ret = ret + '}'
         return ret
     def MogrifyArrayValue(self, p_value):
-        if type(p_value) == type(list()):
+        if isinstance(p_value, list):
             ret = self.MogrifyArray(p_value)
-        elif type(p_value) == type(None):
+        elif p_value is None:
             ret = 'null'
-        elif type(p_value) == type(str()):
+        elif isinstance(p_value, str):
             ret = '"{0}"'.format(p_value.replace('"', '""'))
-        elif type(p_value) == datetime.datetime:
+        elif isinstance(p_value, datetime.datetime):
             ret = '"{0}"'.format(p_value)
         else:
             ret = '{0}'.format(p_value)
@@ -826,7 +826,7 @@ class SQLite(Generic):
                 self.v_con = sqlite3.connect(self.v_service, self.v_timeout, isolation_level=None, check_same_thread=False)
             else:
                 self.v_con = sqlite3.connect(self.v_service, self.v_timeout, check_same_thread=False)
-            #self.v_con.row_factory = sqlite3.Row
+            # self.v_con.row_factory = sqlite3.Row
             self.v_cur = self.v_con.cursor()
             if self.v_foreignkeys:
                 self.v_cur.execute('PRAGMA foreign_keys = ON')
@@ -890,7 +890,7 @@ class SQLite(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -949,7 +949,7 @@ class SQLite(Generic):
             v_fields = []
             self.v_cur.execute('select * from ( ' + p_sql + ' ) t limit 1')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))
@@ -1070,7 +1070,7 @@ class Memory(Generic):
     def Open(self, p_autocommit=True):
         try:
             self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
-            #self.v_con.row_factory = sqlite3.Row
+            # self.v_con.row_factory = sqlite3.Row
             self.v_cur = self.v_con.cursor()
             if self.v_foreignkeys:
                 self.v_cur.execute('PRAGMA foreign_keys = ON')
@@ -1119,7 +1119,7 @@ class Memory(Generic):
             else:
                 self.v_cur.execute(p_sql)
                 r = self.v_cur.fetchone()
-                if r != None:
+                if r is not None:
                     s = r[0]
                 else:
                     s = None
@@ -1172,7 +1172,7 @@ class Memory(Generic):
                 v_fields = []
                 self.v_cur.execute('select * from ( ' + p_sql + ' ) t limit 1')
                 r = self.v_cur.fetchone()
-                if r != None:
+                if r is not None:
                     k = 0
                     for c in self.v_cur.description:
                         v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))
@@ -1419,7 +1419,7 @@ class PostgreSQL(Generic):
                 if p_alltypesstr:
                     for i in range(0, len(v_table.Rows)):
                         for j in range(0, len(v_table.Columns)):
-                            if v_table.Rows[i][j] != None:
+                            if v_table.Rows[i][j] is not None:
                                 v_table.Rows[i][j] = self.String(v_table.Rows[i][j])
                             else:
                                 v_table.Rows[i][j] = ''
@@ -1461,7 +1461,7 @@ class PostgreSQL(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -1571,7 +1571,7 @@ class PostgreSQL(Generic):
             r = self.v_cur.fetchone()
             v_sql = 'select '
             v_first = True
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=self.v_types[c[1]]))
@@ -1715,7 +1715,7 @@ class PostgreSQL(Generic):
                     if self.v_cursor:
                         try:
                             self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
-                        except:
+                        except Exception:
                             None
                     v_sql = self.Parse(p_sql)
                     if not self.v_autocommit and not self.GetConStatus() == 3 and not self.GetConStatus() == 4:
@@ -1737,7 +1737,7 @@ class PostgreSQL(Generic):
                     if p_alltypesstr:
                         for i in range(0, len(v_table.Rows)):
                             for j in range(0, len(v_table.Columns)):
-                                if v_table.Rows[i][j] != None:
+                                if v_table.Rows[i][j] is not None:
                                     v_table.Rows[i][j] = self.String(v_table.Rows[i][j])
                                 else:
                                     v_table.Rows[i][j] = ''
@@ -1997,7 +1997,7 @@ class MySQL(Generic):
                 v_keep = True
             self.v_status = self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -2072,7 +2072,7 @@ class MySQL(Generic):
             v_fields = []
             self.v_status = self.v_cur.execute('select * from ( ' + p_sql + ' ) t limit 1')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=self.v_types[c[1]]))
@@ -2379,7 +2379,7 @@ class MariaDB(Generic):
                 v_keep = True
             self.v_status = self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -2454,7 +2454,7 @@ class MariaDB(Generic):
             v_fields = []
             self.v_status = self.v_cur.execute('select * from ( ' + p_sql + ' ) t limit 1')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=self.v_types[c[1]]))
@@ -2722,7 +2722,7 @@ class Firebird(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -2781,7 +2781,7 @@ class Firebird(Generic):
             v_fields = []
             self.v_cur.execute('select first 1 * from ( ' + p_sql + ' )')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))
@@ -2910,7 +2910,7 @@ class Oracle(Generic):
         else:
             raise Spartacus.Database.Exception("Oracle is not supported. Please install it with 'pip install Spartacus[oracle]'.")
     def GetConnectionString(self):
-        if self.v_host is None and self.v_port is None: # tnsnames.ora
+        if self.v_host is None and self.v_port is None:  # tnsnames.ora
             if self.v_password is None or self.v_password == '':
                 return """{0}/@{1}""".format(
                     self.v_user.replace("'","\\'"),
@@ -3010,7 +3010,7 @@ class Oracle(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -3076,7 +3076,7 @@ class Oracle(Generic):
             v_fields = []
             self.v_cur.execute('select * from ( ' + p_sql + ' ) t where rownum <= 1')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=c[1].__name__))
@@ -3120,7 +3120,7 @@ class Oracle(Generic):
                 try:
                     self.v_con.ping()
                     return 1
-                except:
+                except Exception:
                     return 0
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -3344,7 +3344,7 @@ class MSSQL(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -3403,7 +3403,7 @@ class MSSQL(Generic):
             v_fields = []
             self.v_cur.execute('select top 1 limit_alias.* from ( ' + p_sql + ' ) limit_alias')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))
@@ -3596,7 +3596,7 @@ class IBMDB2(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 s = r[0]
             else:
                 s = None
@@ -3655,7 +3655,7 @@ class IBMDB2(Generic):
             v_fields = []
             self.v_cur.execute('select * from ( ' + p_sql + ' ) t limit 1')
             r = self.v_cur.fetchone()
-            if r != None:
+            if r is not None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))

@@ -79,19 +79,19 @@ class PostgreSQL:
         self.v_user = p_user
         self.v_active_user = p_user
         self.v_conn_string_query = ''
-        #try to get info from connection string
+        # try to get info from connection string
         if p_conn_string!='' and p_parse_conn_string:
             try:
                 parsed = urlparse(p_conn_string)
-                if parsed.port!=None:
+                if parsed.port is not None:
                     self.v_active_port = str(parsed.port)
-                if parsed.hostname!=None:
+                if parsed.hostname is not None:
                     self.v_active_server = parsed.hostname
-                if parsed.username!=None:
+                if parsed.username is not None:
                     self.v_active_user = parsed.username
-                if parsed.password!=None and p_password == '':
+                if parsed.password is not None and p_password == '':
                     self.v_password = parsed.password
-                if parsed.query!=None:
+                if parsed.query is not None:
                     self.v_conn_string_query = parsed.query
                 parsed_database = parsed.path
                 if len(parsed_database)>1:
@@ -104,28 +104,28 @@ class PostgreSQL:
         self.v_connection = Spartacus.Database.PostgreSQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, self.v_password, p_application_name, p_conn_string)
 
         self.v_data_types = {
-            'bigint': { 'quoted': False },
-            'bigserial': { 'quoted': False },
-            'char': { 'quoted': True },
-            'character': { 'quoted': True },
-            'character varying': { 'quoted': True },
-            'date': { 'quoted': True },
-            'decimal': { 'quoted': False },
-            'double precision': { 'quoted': False },
-            'float': { 'quoted': False },
-            'integer': { 'quoted': False },
-            'money': { 'quoted': False },
-            'numeric': { 'quoted': False },
-            'real': { 'quoted': False },
-            'serial': { 'quoted': False },
-            'smallint': { 'quoted': False },
-            'smallserial': { 'quoted': False },
-            'text': { 'quoted': True },
-            'time with time zone': { 'quoted': True },
-            'time without time zone': { 'quoted': True },
-            'timestamp with time zone': { 'quoted': True },
-            'timestamp without time zone': { 'quoted': True },
-            'varchar': { 'quoted': True }
+            'bigint': {'quoted': False},
+            'bigserial': {'quoted': False},
+            'char': {'quoted': True},
+            'character': {'quoted': True},
+            'character varying': {'quoted': True},
+            'date': {'quoted': True},
+            'decimal': {'quoted': False},
+            'double precision': {'quoted': False},
+            'float': {'quoted': False},
+            'integer': {'quoted': False},
+            'money': {'quoted': False},
+            'numeric': {'quoted': False},
+            'real': {'quoted': False},
+            'serial': {'quoted': False},
+            'smallint': {'quoted': False},
+            'smallserial': {'quoted': False},
+            'text': {'quoted': True},
+            'time with time zone': {'quoted': True},
+            'time without time zone': {'quoted': True},
+            'timestamp with time zone': {'quoted': True},
+            'timestamp without time zone': {'quoted': True},
+            'varchar': {'quoted': True}
         }
 
 
@@ -169,22 +169,22 @@ class PostgreSQL:
         self.v_drop_pk_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
         self.v_drop_fk_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
         self.v_drop_unique_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
-        self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)";
+        self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)"
         self.v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)"
         self.v_drop_index_command = "drop index #p_schema_name#.#p_index_name#"
         self.v_update_rules = [
             "NO ACTION",
-			"RESTRICT",
-			"SET NULL",
-			"SET DEFAULT",
-			"CASCADE"
+            "RESTRICT",
+            "SET NULL",
+            "SET DEFAULT",
+            "CASCADE"
         ]
         self.v_delete_rules = [
             "NO ACTION",
-			"RESTRICT",
-			"SET NULL",
-			"SET DEFAULT",
-			"CASCADE"
+            "RESTRICT",
+            "SET NULL",
+            "SET DEFAULT",
+            "CASCADE"
         ]
         self.v_reserved_words = [
             'ABORT',
@@ -725,23 +725,23 @@ class PostgreSQL:
     def lock_required(function):
         def wrap(self, *args, **kwargs):
             try:
-                if self.v_lock != None:
+                if self.v_lock is not None:
                     self.v_lock.acquire()
-            except:
+            except Exception:
                 None
             try:
                 r = function(self, *args, **kwargs)
-            except:
+            except Exception:
                 try:
-                    if self.v_lock != None:
+                    if self.v_lock is not None:
                         self.v_lock.release()
-                except:
+                except Exception:
                     None
                 raise
             try:
-                if self.v_lock != None:
+                if self.v_lock is not None:
                     self.v_lock.release()
-            except:
+            except Exception:
                 None
             return r
         wrap.__doc__ = function.__doc__
@@ -1916,7 +1916,7 @@ class PostgreSQL:
             except Spartacus.Database.Exception as exc:
                 try:
                     self.v_connection.Cancel()
-                except:
+                except Exception:
                     pass
                 raise exc
         else:
@@ -1933,11 +1933,11 @@ class PostgreSQL:
             {2}
             {3}
         '''.format(
-                p_column_list,
-                p_table,
-                p_filter,
-                v_limit
-            ), False
+            p_column_list,
+            p_table,
+            p_filter,
+            v_limit
+        ), False
         )
 
     @lock_required
@@ -2087,11 +2087,11 @@ class PostgreSQL:
                        trim(x.name) as name,
                        row_number() over() as seq
                 from (
-                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{0}'::regprocedure), ',')) as name
                 ) x
                 where length(trim(x.name)) > 0
                 order by 3
-            '''.format(p_schema, p_procedure), True)
+            '''.format(p_procedure), True)
         else:
             return self.v_connection.Query('''
                 select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
@@ -2102,11 +2102,11 @@ class PostgreSQL:
                        trim(x.name) as name,
                        row_number() over() as seq
                 from (
-                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{0}'::regprocedure), ',')) as name
                 ) x
                 where length(trim(x.name)) > 0
                 order by 3
-            '''.format(self.v_schema, p_procedure), True)
+            '''.format(p_procedure), True)
 
     @lock_required
     def GetProcedureDefinition(self, p_procedure):
@@ -2341,13 +2341,13 @@ class PostgreSQL:
         return '''CREATE OR REPLACE VIEW {0}.{1} AS
 {2}
 '''.format(p_schema, p_view,
-        self.v_connection.ExecuteScalar('''
+            self.v_connection.ExecuteScalar('''
                 select view_definition
                 from information_schema.views
                 where quote_ident(table_schema) = '{0}'
                   and quote_ident(table_name) = '{1}'
             '''.format(p_schema, p_view)
-    ))
+            ))
 
     @lock_required
     def QueryMaterializedViews(self, p_all_schemas=False, p_schema=None):
@@ -2444,20 +2444,20 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
 {3}
 '''.format(
-    p_schema,
-    p_view,
-    self.v_connection.ExecuteScalar(
-        '''
-            select pg_get_viewdef('{0}.{1}'::regclass)
-        '''.format(
-            p_schema, p_view
+            p_schema,
+            p_view,
+            self.v_connection.ExecuteScalar(
+                '''
+                    select pg_get_viewdef('{0}.{1}'::regclass)
+                '''.format(
+                    p_schema, p_view
+                )
+            ),
+            '\n'.join([
+                v_row['definition']
+                for v_row in self.QueryTablesIndexesHelper(p_view, False, p_schema).Rows
+            ])
         )
-    ),
-    '\n'.join([
-        v_row['definition']
-        for v_row in self.QueryTablesIndexesHelper(p_view, False, p_schema).Rows
-    ])
-)
 
     @lock_required
     def QueryPhysicalReplicationSlots(self):
@@ -2784,7 +2784,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
     def AdvancedObjectSearchData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas, p_dataCategoryFilter):
         v_sqlDict = {}
 
-        if p_inSchemas != '': #At least one schema must be selected
+        if p_inSchemas != '':  # At least one schema must be selected
             v_columnsSql = '''
                 select n.nspname as schema_name,
                        c.relname as table_name,
@@ -5523,8 +5523,7 @@ ADD COLUMN name data_type
 --SET ( attribute_option = value [, ... ] )
 --RESET ( attribute_option [, ... ] )
 --SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
-'''
-)
+''')
 
     def TemplateDropColumn(self):
         return Template('''ALTER TABLE #table_name#
@@ -6502,8 +6501,7 @@ ADD COLUMN name data_type
 --RESET ( attribute_option [, ... ] )
 --SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
 --OPTIONS ( [ ADD | SET | DROP ] option ['value'] [, ... ] )
-'''
-)
+''')
 
     def TemplateDropForeignColumn(self):
         return Template('''ALTER FOREIGN TABLE #table_name#
@@ -8787,13 +8785,13 @@ FROM #table_name#
             grants as (
                 select coalesce(
                         string_agg(format(
-                    	E'GRANT %s ON SCHEMA {0} TO %s%s;\n',
+                        E'GRANT %s ON SCHEMA {0} TO %s%s;\n',
                         privilege_type,
                         case grantee
                           when 'PUBLIC' then 'PUBLIC'
                           else quote_ident(grantee)
                         end,
-                    	case is_grantable
+                        case is_grantable
                           when 'YES' then ' WITH GRANT OPTION'
                           else ''
                         end), ''),
@@ -8801,9 +8799,9 @@ FROM #table_name#
                 from privileges
             )
             select format(E'CREATE SCHEMA %s;\n\n',quote_ident(n.nspname))
-            	   || comment.text
-                   || alterowner.text
-                   || grants.text
+                    || comment.text
+                    || alterowner.text
+                    || grants.text
               from pg_namespace n
               inner join comment on 1=1
               inner join alterowner on 1=1
@@ -8857,17 +8855,17 @@ FROM #table_name#
                         c.oid,
                         a.attacl,
                         format('%I %s%s%s',
-                        	a.attname::text,
-                        	format_type(t.oid, a.atttypmod),
-                	        CASE
-                    	      WHEN length(col.collcollate) > 0
-                        	  THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                            a.attname::text,
+                            format_type(t.oid, a.atttypmod),
+                            CASE
+                              WHEN length(col.collcollate) > 0
+                              THEN ' COLLATE ' || quote_ident(col.collcollate::text)
                               ELSE ''
-                        	END,
-                        	CASE
+                            END,
+                            CASE
                               WHEN a.attnotnull THEN ' NOT NULL'::text
                               ELSE ''::text
-                        	END)
+                            END)
                         AS definition
                    FROM pg_class c
                    JOIN pg_namespace s ON s.oid = c.relnamespace
@@ -9272,14 +9270,14 @@ FROM #table_name#
                     select
                        coalesce(
                         string_agg(format(
-                        	E'GRANT %s ON %s TO %s%s;\n',
+                            E'GRANT %s ON %s TO %s%s;\n',
                             privilege_type,
                             '{0}.{1}',
                             case grantee
                               when 'PUBLIC' then 'PUBLIC'
                               else quote_ident(grantee)
                             end,
-                    		case is_grantable
+                            case is_grantable
                               when 'YES' then ' WITH GRANT OPTION'
                               else ''
                             end), ''),
@@ -9376,20 +9374,20 @@ FROM #table_name#
                         c.oid,
                         a.attacl,
                         format('%I %s%s%s%s',
-                        	a.attname::text,
-                        	format_type(t.oid, a.atttypmod),
-                	        CASE
-                    	      WHEN length(col.collcollate) > 0
-                        	  THEN ' COLLATE ' || quote_ident(col.collcollate::text)
-                              ELSE ''
-                        	END,
-                        	CASE
-                              WHEN a.attnotnull THEN ' NOT NULL'::text
-                              ELSE ''::text
-                        	END,
+                            a.attname::text,
+                            format_type(t.oid, a.atttypmod),
                             CASE
-                              WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
-                              WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                                WHEN length(col.collcollate) > 0
+                                THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                                ELSE ''
+                            END,
+                            CASE
+                                WHEN a.attnotnull THEN ' NOT NULL'::text
+                                ELSE ''::text
+                            END,
+                            CASE
+                                WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                                WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
                               ELSE ''::text
                             END)
                         AS definition
@@ -9820,14 +9818,14 @@ FROM #table_name#
                     select
                        coalesce(
                         string_agg(format(
-                        	E'GRANT %s ON %s TO %s%s;\n',
+                            E'GRANT %s ON %s TO %s%s;\n',
                             privilege_type,
                             '{0}.{1}',
                             case grantee
                               when 'PUBLIC' then 'PUBLIC'
                               else quote_ident(grantee)
                             end,
-                    		case is_grantable
+                            case is_grantable
                               when 'YES' then ' WITH GRANT OPTION'
                               else ''
                             end), ''),
@@ -9924,20 +9922,20 @@ FROM #table_name#
                         c.oid,
                         a.attacl,
                         format('%I %s%s%s%s',
-                        	a.attname::text,
-                        	format_type(t.oid, a.atttypmod),
-                	        CASE
-                    	      WHEN length(col.collcollate) > 0
-                        	  THEN ' COLLATE ' || quote_ident(col.collcollate::text)
-                              ELSE ''
-                        	END,
-                        	CASE
-                              WHEN a.attnotnull THEN ' NOT NULL'::text
-                              ELSE ''::text
-                        	END,
+                            a.attname::text,
+                            format_type(t.oid, a.atttypmod),
                             CASE
-                              WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
-                              WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                                WHEN length(col.collcollate) > 0
+                                THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                                ELSE ''
+                            END,
+                            CASE
+                                WHEN a.attnotnull THEN ' NOT NULL'::text
+                                ELSE ''::text
+                            END,
+                            CASE
+                                WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                                WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
                               ELSE ''::text
                             END)
                         AS definition
@@ -10368,14 +10366,14 @@ FROM #table_name#
                     select
                        coalesce(
                         string_agg(format(
-                        	E'GRANT %s ON %s TO %s%s;\n',
+                            E'GRANT %s ON %s TO %s%s;\n',
                             privilege_type,
                             '{0}.{1}',
                             case grantee
                               when 'PUBLIC' then 'PUBLIC'
                               else quote_ident(grantee)
                             end,
-                    		case is_grantable
+                            case is_grantable
                               when 'YES' then ' WITH GRANT OPTION'
                               else ''
                             end), ''),
@@ -10473,21 +10471,21 @@ FROM #table_name#
                         c.oid,
                         a.attacl,
                         format('%I %s%s%s%s',
-                        	a.attname::text,
-                        	format_type(t.oid, a.atttypmod),
-                	        CASE
-                    	      WHEN length(col.collcollate) > 0
-                        	  THEN ' COLLATE ' || quote_ident(col.collcollate::text)
-                              ELSE ''
-                        	END,
-                        	CASE
-                              WHEN a.attnotnull THEN ' NOT NULL'::text
-                              ELSE ''::text
-                        	END,
+                            a.attname::text,
+                            format_type(t.oid, a.atttypmod),
                             CASE
-                              WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
-                              WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
-                              WHEN a.attgenerated = 's' THEN format(' GENERATED ALWAYS AS %s STORED',pg_get_expr(def.adbin, def.adrelid))::text
+                                WHEN length(col.collcollate) > 0
+                                THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                                ELSE ''
+                            END,
+                            CASE
+                                WHEN a.attnotnull THEN ' NOT NULL'::text
+                                ELSE ''::text
+                            END,
+                            CASE
+                                WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                                WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                                WHEN a.attgenerated = 's' THEN format(' GENERATED ALWAYS AS %s STORED',pg_get_expr(def.adbin, def.adrelid))::text
                               ELSE ''::text
                             END)
                         AS definition
@@ -10917,14 +10915,14 @@ FROM #table_name#
                     select
                        coalesce(
                         string_agg(format(
-                        	E'GRANT %s ON %s TO %s%s;\n',
+                            E'GRANT %s ON %s TO %s%s;\n',
                             privilege_type,
                             '{0}.{1}',
                             case grantee
                               when 'PUBLIC' then 'PUBLIC'
                               else quote_ident(grantee)
                             end,
-                    		case is_grantable
+                            case is_grantable
                               when 'YES' then ' WITH GRANT OPTION'
                               else ''
                             end), ''),
@@ -11128,13 +11126,13 @@ FROM #table_name#
                 grants as (
                 select coalesce(
                         string_agg(format(
-                    	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                        E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
                         privilege_type,
                         case grantee
                           when 'PUBLIC' then 'PUBLIC'
                           else quote_ident(grantee)
                         end,
-                    	case is_grantable
+                        case is_grantable
                           when 'YES' then ' WITH GRANT OPTION'
                           else ''
                         end), ''),
@@ -11220,13 +11218,13 @@ FROM #table_name#
                 grants as (
                 select coalesce(
                         string_agg(format(
-                    	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                        E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
                         privilege_type,
                         case grantee
                           when 'PUBLIC' then 'PUBLIC'
                           else quote_ident(grantee)
                         end,
-                    	case is_grantable
+                        case is_grantable
                           when 'YES' then ' WITH GRANT OPTION'
                           else ''
                         end), ''),
@@ -11313,13 +11311,13 @@ FROM #table_name#
             grants as (
             select coalesce(
                     string_agg(format(
-                	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                    E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
                     privilege_type,
                     case grantee
                       when 'PUBLIC' then 'PUBLIC'
                       else quote_ident(grantee)
                     end,
-                	case is_grantable
+                    case is_grantable
                       when 'YES' then ' WITH GRANT OPTION'
                       else ''
                     end), ''),
@@ -11493,14 +11491,14 @@ FROM #table_name#
                 SELECT
                   coalesce(
                    string_agg(format(
-                   	E'GRANT %s ON %s TO %s%s;\n',
+                    E'GRANT %s ON %s TO %s%s;\n',
                        privilege_type,
                        'FOREIGN SERVER {0}',
                        case grantee
                          when 'PUBLIC' then 'PUBLIC'
                          else quote_ident(grantee)
                        end,
-                	   case is_grantable
+                       case is_grantable
                          when 'YES' then ' WITH GRANT OPTION'
                          else ''
                        end), ''),
@@ -11612,14 +11610,14 @@ FROM #table_name#
                 SELECT
                   coalesce(
                    string_agg(format(
-                   	E'GRANT %s ON %s TO %s%s;\n',
+                    E'GRANT %s ON %s TO %s%s;\n',
                        privilege_type,
                        'FOREIGN DATA WRAPPER {0}',
                        case grantee
                          when 'PUBLIC' then 'PUBLIC'
                          else quote_ident(grantee)
                        end,
-                	   case is_grantable
+                       case is_grantable
                          when 'YES' then ' WITH GRANT OPTION'
                          else ''
                        end), ''),
@@ -12371,15 +12369,15 @@ FROM #table_name#
                         SELECT coalesce(
                                    string_agg(
                                        format(
-                        	               E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                                           E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
                                            privilege_type,
                                            (CASE grantee WHEN 'PUBLIC'
                                                          THEN 'PUBLIC'
                                                          ELSE quote_ident(grantee)
                                             END),
-                        	               (CASE is_grantable WHEN 'YES'
-                        	                                  THEN ' WITH GRANT OPTION'
-                        	                                  ELSE ''
+                                           (CASE is_grantable WHEN 'YES'
+                                                              THEN ' WITH GRANT OPTION'
+                                                              ELSE ''
                                             END)
                                         ),
                                         ''
@@ -12567,15 +12565,15 @@ FROM #table_name#
                         SELECT coalesce(
                                    string_agg(
                                        format(
-                        	               E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                                           E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
                                            privilege_type,
                                            (CASE grantee WHEN 'PUBLIC'
                                                          THEN 'PUBLIC'
                                                          ELSE quote_ident(grantee)
                                             END),
-                        	               (CASE is_grantable WHEN 'YES'
-                        	                                  THEN ' WITH GRANT OPTION'
-                        	                                  ELSE ''
+                                           (CASE is_grantable WHEN 'YES'
+                                                              THEN ' WITH GRANT OPTION'
+                                                              ELSE ''
                                             END)
                                         ),
                                         ''
@@ -12791,15 +12789,15 @@ FROM #table_name#
                         SELECT coalesce(
                                    string_agg(
                                        format(
-                        	               E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                                           E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
                                            privilege_type,
                                            (CASE grantee WHEN 'PUBLIC'
                                                          THEN 'PUBLIC'
                                                          ELSE quote_ident(grantee)
                                             END),
-                        	               (CASE is_grantable WHEN 'YES'
-                        	                                  THEN ' WITH GRANT OPTION'
-                        	                                  ELSE ''
+                                           (CASE is_grantable WHEN 'YES'
+                                                              THEN ' WITH GRANT OPTION'
+                                                              ELSE ''
                                             END)
                                         ),
                                         ''

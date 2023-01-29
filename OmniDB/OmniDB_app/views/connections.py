@@ -15,27 +15,28 @@ from OmniDB_app.include.Session import Session
 from OmniDB import settings
 from datetime import datetime
 
-import time, os
+import time
+import os
 
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import Technology, Connection, Group, GroupConnection
 
 import paramiko
 from sshtunnel import SSHTunnelForwarder
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import user_authenticated
 
 from django.db.models import Q
 
 @user_authenticated
 def get_connections(request):
 
+    v_return = {}
     #User not authenticated
     if not request.user.is_authenticated:
         v_return['v_error'] = True
         v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
-    v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
@@ -126,7 +127,7 @@ def get_groups(request):
         for group in Group.objects.filter(user=request.user):
             v_current_group_data = {
                 'id': group.id,
-                'name':  group.name,
+                'name': group.name,
                 'conn_list': []
             }
             for group_conn in GroupConnection.objects.filter(group=group):
@@ -245,7 +246,7 @@ def test_connection(request):
         if json_object['tunnel']['key'].strip()=='':
             ssh_key=conn.ssh_key
 
-    if json_object['temp_password']!=None:
+    if json_object['temp_password'] is not None:
         password = json_object['temp_password']
 
 
@@ -287,7 +288,7 @@ def test_connection(request):
         )
 
         # create tunnel if enabled
-        if json_object['tunnel']['enabled'] == True:
+        if json_object['tunnel']['enabled'] is True:
 
             try:
                 if ssh_key.strip() != '':

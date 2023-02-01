@@ -17,7 +17,7 @@ def cleanup_thread():
             while to_be_removed:
                 conn = to_be_removed.pop(0)
                 conn.v_connection.Close()
-        except:
+        except Exception:
             None
         for client in list(global_object):
 
@@ -29,7 +29,7 @@ def cleanup_thread():
                     # Tab reached timeout
                     tab_timeout_reached = datetime.now() > global_object[client]['tab_list'][tab_id]['last_update'] + timedelta(0,3600)
 
-                    if client_timeout_reached or tab_timeout_reached or global_object[client]['tab_list'][tab_id]['to_be_removed'] == True:
+                    if client_timeout_reached or tab_timeout_reached or global_object[client]['tab_list'][tab_id]['to_be_removed'] is True:
                         close_tab_handler(global_object[client],tab_id)
                 except Exception as exc:
                     None
@@ -70,13 +70,13 @@ def database_required(p_check_timeout = True, p_open_connection = True):
             v_database_index = json_object['p_database_index']
             v_tab_id = json_object['p_tab_id']
 
-            if v_database_index != None:
+            if v_database_index is not None:
                 try:
                     if p_check_timeout:
                         #Check database prompt timeout
                         v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
                         if v_timeout['timeout']:
-                            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+                            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message']}
                             v_return['v_error'] = True
                             return JsonResponse(v_return)
 
@@ -87,7 +87,7 @@ def database_required(p_check_timeout = True, p_open_connection = True):
                         p_attempt_to_open_connection = p_open_connection
                     )
                 except Exception as exc:
-                    v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+                    v_return['v_data'] = {'password_timeout': True, 'message': str(exc)}
                     v_return['v_error'] = True
                     return JsonResponse(v_return)
             else:
@@ -131,7 +131,7 @@ def close_tab_handler(p_client_object,p_tab_object_id):
             except Exception:
                 None
         elif tab_object['type'] == 'terminal':
-            if tab_object['thread']!=None:
+            if tab_object['thread'] is not None:
                 tab_object['thread'].stop()
             if tab_object['terminal_type'] == 'local':
                 tab_object['terminal_object'].terminate()
@@ -153,11 +153,11 @@ def clear_client_object(
 
         try:
             client_object['polling_lock'].release()
-        except:
+        except Exception:
             None
         try:
             client_object['returning_data_lock'].release()
-        except:
+        except Exception:
             None
     except Exception as exc:
         None
@@ -241,7 +241,7 @@ def get_database_tab_object(
     p_tab_object['last_update'] = datetime.now()
 
 
-    if (p_tab_object['omnidatabase'] == None or
+    if (p_tab_object['omnidatabase'] is None or
         (v_global_database_object.v_db_type!=p_tab_object['omnidatabase'].v_db_type or
             v_global_database_object.v_connection.v_host!=p_tab_object['omnidatabase'].v_connection.v_host or
             str(v_global_database_object.v_connection.v_port)!=str(p_tab_object['omnidatabase'].v_connection.v_port) or

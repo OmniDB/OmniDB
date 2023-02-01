@@ -94,7 +94,7 @@ class DataFileWriter(object):
             self.v_extension = 'csv'
         self.v_filename = p_filename
         self.v_file = None
-        self.v_header = p_fieldnames # Can't be empty for CSV
+        self.v_header = p_fieldnames  # Can't be empty for CSV
         self.v_encoding = p_encoding
         self.v_delimiter = p_delimiter
         self.v_lineterminator = p_lineterminator

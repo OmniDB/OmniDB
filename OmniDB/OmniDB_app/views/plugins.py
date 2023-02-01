@@ -18,7 +18,7 @@ import os
 
 from django import forms
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import user_authenticated, database_required
 from OmniDB_app.views.monitor_dashboard import monitoring_units
 
 class UploadFileForm(forms.Form):
@@ -106,7 +106,7 @@ def load_plugin(plugin_folder, p_load):
         plugin_object = plugins[plugin_name]
         #didn't raise exception, so plugin was already loaded. Exit
         return
-    except:
+    except Exception:
         None
 
     loaded_folder_name = '{0}_{1}'.format(plugin_name,str(time.time()).replace('.','_'))
@@ -176,7 +176,7 @@ def load_plugins():
     # Attempt to create plugins dir inside HOME_DIR, to make sure it exists
     try:
         os.mkdir(join(settings.HOME_DIR,'plugins'))
-    except:
+    except Exception:
         None
 
     #delete temp loaded python files
@@ -298,7 +298,7 @@ def get_plugins(request):
     plugin_list = []
     for key, plugin in plugins.items():
         if plugin['message']=='' and plugin['js_exists']:
-            plugin_list.append({ 'name': plugin['name'], 'file': plugin['javascript_file'], 'cssfile': plugin['css_file'], 'folder': plugin['plugin_folder']})
+            plugin_list.append({'name': plugin['name'], 'file': plugin['javascript_file'], 'cssfile': plugin['css_file'], 'folder': plugin['plugin_folder']})
 
     v_return['v_data'] = plugin_list
 
@@ -510,24 +510,24 @@ def delete_plugin(request):
         plugin = plugins[p_plugin_name]
         try:
             shutil.rmtree(join(settings.HOME_DIR,'plugins',plugin['folder']))
-        except:
+        except Exception:
             None
         del plugins[p_plugin_name]
-    except:
+    except Exception:
         None
 
     try:
         plugin = failed_plugins[p_plugin_folder]
         try:
             shutil.rmtree(join(settings.PLUGINS_STATIC_DIR,plugin['folder']))
-        except:
+        except Exception:
             None
         try:
             shutil.rmtree(join(settings.PLUGINS_DIR,plugin['folder']))
-        except:
+        except Exception:
             None
         del plugins[p_plugin_name]
-    except:
+    except Exception:
         None
 
     v_return['v_data'] = 'Please restart OmniDB to unload plugin libraries.'
@@ -548,7 +548,7 @@ def exec_plugin_function(request, v_database):
     json_object = json.loads(request.POST.get('data', None))
     p_plugin_name = json_object['p_plugin_name']
     p_function_name = json_object['p_function_name']
-    if 'p_data' not in json_object or json_object['p_data'] == None:
+    if 'p_data' not in json_object or json_object['p_data'] is None:
         p_data = {}
     else:
         p_data = json_object['p_data']
@@ -564,7 +564,7 @@ def exec_plugin_function(request, v_database):
     if p_check_database_connection and p_database_index:
         v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_database_index))
         if v_timeout['timeout']:
-            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message']}
             v_return['v_error'] = True
             return JsonResponse(v_return)
 
@@ -572,7 +572,7 @@ def exec_plugin_function(request, v_database):
         func = getattr(plugins[p_plugin_name]['module'], p_function_name)
         v_return['v_data'] = func(v_database,p_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

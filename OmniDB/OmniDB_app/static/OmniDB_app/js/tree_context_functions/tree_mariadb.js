@@ -561,7 +561,7 @@ function getTreeMariadb(p_div) {
                 icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();

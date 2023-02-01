@@ -13,17 +13,17 @@ import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
-from OmniDB import settings, custom_settings
+from OmniDB import custom_settings
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as logout_django
 
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import UserDetails
 from django.contrib.auth.models import User
 
 from django.contrib.auth.decorators import login_required
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import user_authenticated
 
 import logging
 logger = logging.getLogger(__name__)

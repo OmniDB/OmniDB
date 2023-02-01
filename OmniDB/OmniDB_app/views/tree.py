@@ -36,9 +36,9 @@ def get_tree_info(request):
         'v_database_return': {
             'v_database': v_database.GetName(),
             'v_has_schema': v_database.v_has_schema,
-			'v_has_functions': v_database.v_has_functions,
+            'v_has_functions': v_database.v_has_functions,
             'v_has_procedures': v_database.v_has_procedures,
-			'v_has_sequences': v_database.v_has_sequences,
+            'v_has_sequences': v_database.v_has_sequences,
             'v_schema': v_database.v_schema
         }
     }

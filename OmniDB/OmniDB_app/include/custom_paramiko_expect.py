@@ -111,14 +111,14 @@ class SSHClientInteraction(object):
 
         # Strip all ugly \r (Ctrl-M making) characters from the current
         # read
-        #current_buffer_decoded = current_buffer_decoded.replace('\b', '\b \b')
+        # current_buffer_decoded = current_buffer_decoded.replace('\b', '\b \b')
 
         # Display the current buffer in realtime if requested to do so
         # (good for debugging purposes)
         if self.display:
-            output_callback(current_buffer_decoded)
+            self.output_callback(current_buffer_decoded)
 
-        #if strip_ansi:
+        # if strip_ansi:
         #    current_buffer_decoded = strip_ansi_codes(current_buffer_decoded)
 
         # Add the currently read buffer to the output

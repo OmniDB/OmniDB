@@ -12,7 +12,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import user_authenticated, database_required
 
 
 @user_authenticated
@@ -44,7 +44,7 @@ def get_tree_info(request, v_database):
             }
         }
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -84,7 +84,7 @@ def get_tables(request, v_database):
 
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -120,7 +120,7 @@ def get_columns(request, v_database):
 
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -152,7 +152,7 @@ def get_pk(request, v_database):
 
             v_list_pk.append(v_pk_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -184,7 +184,7 @@ def get_pk_columns(request, v_database):
 
             v_list_pk.append(v_pk_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -219,7 +219,7 @@ def get_fks(request, v_database):
 
             v_list_fk.append(v_fk_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -257,7 +257,7 @@ def get_fks_columns(request, v_database):
 
             v_list_fk.append(v_fk_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -289,7 +289,7 @@ def get_uniques(request, v_database):
 
             v_list_uniques.append(v_unique_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -324,7 +324,7 @@ def get_uniques_columns(request, v_database):
 
             v_list_uniques.append(v_unique_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -357,7 +357,7 @@ def get_indexes(request, v_database):
 
             v_list_indexes.append(v_index_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -390,7 +390,7 @@ def get_indexes_columns(request, v_database):
 
             v_list_indexes.append(v_index_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -422,7 +422,7 @@ def get_views(request, v_database):
 
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -457,7 +457,7 @@ def get_views_columns(request, v_database):
 
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -481,7 +481,7 @@ def get_view_definition(request, v_database):
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -512,7 +512,7 @@ def get_triggers(request, v_database):
 
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -539,7 +539,7 @@ def template_select(request, v_database):
     except Exception as exc:
         import traceback
         print(traceback.format_exc())
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -565,7 +565,7 @@ def template_insert(request, v_database):
     try:
         v_template = v_database.TemplateInsert(v_table).v_text
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -591,7 +591,7 @@ def template_update(request, v_database):
     try:
         v_template = v_database.TemplateUpdate(v_table).v_text
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -618,7 +618,7 @@ def get_version(request, v_database):
             'v_version': v_database.GetVersion()
         }
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -650,7 +650,7 @@ def get_properties(request, v_database):
     except Exception as exc:
         import traceback
         print(traceback.format_exc())
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc)}
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

@@ -3,7 +3,7 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 import OmniDB_app.include.Spartacus.Utils as Utils
 
 from django.contrib.auth.models import User
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import Config, Connection, Technology, MonUnits, SnippetFile, SnippetFolder
 
 from datetime import datetime
 from django.utils.timezone import make_aware
@@ -44,14 +44,14 @@ def migration_main(p_old_db_file, p_interactive, p_logger):
                 select count(1)
                 from users
             ''')
-        except:
+        except Exception:
             migration_enabled = False
         try:
             database.v_connection.Query('''
                 select count(1)
                 from connections
             ''')
-        except:
+        except Exception:
             migration_enabled = False
 
         if not migration_enabled:
@@ -77,18 +77,19 @@ def migration_main(p_old_db_file, p_interactive, p_logger):
                         log_message(p_logger,'info',"Creating user '{0}'...".format(user['username']))
                         user_object=User.objects.get(username=user['username'])
                         log_message(p_logger,'info',"User '{0}' already exists.".format(user['username']))
-                    except:
+                    except Exception:
                         # Creating the user
-                        user_object = User.objects.create_user(username=user['username'],
-                                                 password='changeme',
-                                                 email='',
-                                                 last_login=timezone.now(),
-                                                 is_superuser=user['superuser']==1,
-                                                 first_name='',
-                                                 last_name='',
-                                                 is_staff=False,
-                                                 is_active=True,
-                                                 date_joined=timezone.now())
+                        user_object = User.objects.create_user(
+                            username=user['username'],
+                            password='changeme',
+                            email='',
+                            last_login=timezone.now(),
+                            is_superuser=user['superuser']==1,
+                            first_name='',
+                            last_name='',
+                            is_staff=False,
+                            is_active=True,
+                            date_joined=timezone.now())
                         log_message(p_logger,'info',"User '{0}' created.".format(user['username']))
 
 
@@ -287,7 +288,7 @@ def migration_build_snippets_object_recursive(p_folders,p_files,p_current_object
     # Adding files
     for file in p_files.Rows:
         # Match
-        if ((file['sn_id_parent'] == None and p_current_object['id'] == None) or (file['sn_id_parent']!=None and file['sn_id_parent'] == p_current_object['id'])):
+        if ((file['sn_id_parent'] is None and p_current_object['id'] is None) or (file['sn_id_parent'] is not None and file['sn_id_parent'] == p_current_object['id'])):
             new_date = make_aware(datetime.now())
             file_object = SnippetFile(
                 user=p_user,
@@ -302,7 +303,7 @@ def migration_build_snippets_object_recursive(p_folders,p_files,p_current_object
     # Adding folders
     for folder in p_folders.Rows:
         # Match
-        if ((folder['sn_id_parent'] == None and p_current_object['id'] == None) or (folder['sn_id_parent']!=None and folder['sn_id_parent'] == p_current_object['id'])):
+        if ((folder['sn_id_parent'] is None and p_current_object['id'] is None) or (folder['sn_id_parent'] is not None and folder['sn_id_parent'] == p_current_object['id'])):
             new_date = make_aware(datetime.now())
             folder_object = SnippetFolder(
                 user=p_user,

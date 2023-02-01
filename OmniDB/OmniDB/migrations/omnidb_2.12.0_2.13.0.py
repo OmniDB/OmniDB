@@ -1,3 +1,4 @@
+import OmniDB_app.include.Spartacus.Utils as Utils
 v_cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
 
 p_database.v_connection.Open()

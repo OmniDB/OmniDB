@@ -22,75 +22,92 @@ parser = optparse.OptionParser(version=OmniDB.custom_settings.OMNIDB_VERSION)
 
 group = optparse.OptionGroup(parser, "General Options")
 
-group.add_option("-d", "--homedir", dest="homedir",
-                  default='', type=str,
-                  help="home directory containing config and log files")
+group.add_option(
+    "-d", "--homedir", dest="homedir",
+    default='', type=str,
+    help="home directory containing config and log files")
 
-group.add_option("-C", "--configfile", dest="conf",
-                  default='', type=str,
-                  help="configuration file")
+group.add_option(
+    "-C", "--configfile", dest="conf",
+    default='', type=str,
+    help="configuration file")
 
-group.add_option("-i", "--init", dest="init",
-                  action="store_true",
-                  default=False,
-                  help="Create home directory containing config and log files")
+group.add_option(
+    "-i", "--init", dest="init",
+    action="store_true",
+    default=False,
+    help="Create home directory containing config and log files")
 
 parser.add_option_group(group)
 
 group = optparse.OptionGroup(parser, "Webserver Options")
 
-group.add_option("-H", "--host", dest="host",
-                  default=None, type=str,
-                  help="listening address")
+group.add_option(
+    "-H", "--host", dest="host",
+    default=None, type=str,
+    help="listening address")
 
-group.add_option("-p", "--port", dest="port",
-                  default=None, type=int,
-                  help="listening port")
+group.add_option(
+    "-p", "--port", dest="port",
+    default=None, type=int,
+    help="listening port")
 
 
-group.add_option("-A", "--app", dest="app",
-                  action="store_true",
-                  default=False,
-                  help=optparse.SUPPRESS_HELP)
+group.add_option(
+    "-A", "--app", dest="app",
+    action="store_true",
+    default=False,
+    help=optparse.SUPPRESS_HELP)
 
-group.add_option("-P", "--path", dest="path",
-                  default='', type=str,
-                  help="path to access the application, other than /")
+group.add_option(
+    "-P", "--path", dest="path",
+    default='', type=str,
+    help="path to access the application, other than /")
 
 parser.add_option_group(group)
 
 group = optparse.OptionGroup(parser, "Management Options",
                              "Options to list, create and drop users and connections.")
-group.add_option("-M", "--migratedatabase", dest="migratedb",
-                  nargs=1,metavar="dbfile",
-                  help="migrate users and connections from OmniDB 2 to 3: -M dbfile")
-group.add_option("-r", "--resetdatabase", dest="reset",
-                  default=False, action="store_true",
-                  help="reset user and session databases")
-group.add_option("-j", "--jsonoutput", dest="jsonoutput",
-                  default=False, action="store_true",
-                  help="format list output as json")
-group.add_option("-l", "--listusers", dest="listusers",
-                  default=False, action="store_true",
-                  help="list users")
-group.add_option("-u", "--createuser", dest="createuser",
-                  nargs=2,metavar="username password",
-                  help="create user: -u username password")
-group.add_option("-s", "--createsuperuser", dest="createsuperuser",
-                  nargs=2,metavar="username password",
-                  help="create super user: -s username password")
-group.add_option("-x", "--dropuser", dest="dropuser",
-                  nargs=1,metavar="username",
-                  help="drop user: -x username")
-group.add_option("-m", "--listconnections", dest="listconnections",
-                  nargs=1,metavar="username",
-                  help="list connections: -m username")
-group.add_option("-c", "--createconnection", dest="createconnection",
-                  nargs=8,metavar="username technology title host port database dbuser dbpassword",
-                  help="create connection: -c username technology host port database dbuser dbpassword")
-group.add_option("-z", "--dropconnection", dest="dropconnection",
-                  nargs=1,metavar="connid",
-                  help="drop connection: -z connid")
+group.add_option(
+    "-M", "--migratedatabase", dest="migratedb",
+    nargs=1,metavar="dbfile",
+    help="migrate users and connections from OmniDB 2 to 3: -M dbfile")
+group.add_option(
+    "-r", "--resetdatabase", dest="reset",
+    default=False, action="store_true",
+    help="reset user and session databases")
+group.add_option(
+    "-j", "--jsonoutput", dest="jsonoutput",
+    default=False, action="store_true",
+    help="format list output as json")
+group.add_option(
+    "-l", "--listusers", dest="listusers",
+    default=False, action="store_true",
+    help="list users")
+group.add_option(
+    "-u", "--createuser", dest="createuser",
+    nargs=2,metavar="username password",
+    help="create user: -u username password")
+group.add_option(
+    "-s", "--createsuperuser", dest="createsuperuser",
+    nargs=2,metavar="username password",
+    help="create super user: -s username password")
+group.add_option(
+    "-x", "--dropuser", dest="dropuser",
+    nargs=1,metavar="username",
+    help="drop user: -x username")
+group.add_option(
+    "-m", "--listconnections", dest="listconnections",
+    nargs=1,metavar="username",
+    help="list connections: -m username")
+group.add_option(
+    "-c", "--createconnection", dest="createconnection",
+    nargs=8,metavar="username technology title host port database dbuser dbpassword",
+    help="create connection: -c username technology host port database dbuser dbpassword")
+group.add_option(
+    "-z", "--dropconnection", dest="dropconnection",
+    nargs=1,metavar="connid",
+    help="drop connection: -z connid")
 parser.add_option_group(group)
 
 (options, args) = parser.parse_args()
@@ -141,7 +158,7 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 omnidb_settings = module
 
-if options.host!=None:
+if options.host is not None:
     listening_address = options.host
 else:
     if hasattr(omnidb_settings,'LISTENING_ADDRESS'):
@@ -149,7 +166,7 @@ else:
     else:
         listening_address = '127.0.0.1'
 
-if options.port!=None:
+if options.port is not None:
     listening_port = options.port
 else:
     if hasattr(omnidb_settings,'LISTENING_PORT'):
@@ -210,7 +227,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'OmniDB.settings'
 import django
 from django.core.management import call_command
 django.setup()
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import Connection, Technology
 from django.contrib.auth.models import User
 from django.utils import timezone
 import django_sass
@@ -230,7 +247,7 @@ except Exception as exc:
 
 # Migration from 2 to 3 ########################################################
 
-from omnidb_server_helper import *
+from omnidb_server_helper import migration_main
 
 old_db_file = dbfile = os.path.expanduser(os.path.join(OmniDB.custom_settings.HOME_DIR,'omnidb.db'))
 
@@ -377,7 +394,7 @@ if options.migratedb:
         migration_main(dbfile, True, logger)
 
 # Maintenance performed, exit before starting webserver
-if maintenance_action == True:
+if maintenance_action is True:
     sys.exit()
 
 # This line was reached, so not a maintenance run, lock HOME DIR if not on Windows
@@ -501,8 +518,7 @@ class DjangoApplication(object):
                 ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
                 ssl_ctx.options |= ssl.OP_NO_TLSv1
                 ssl_ctx.options |= ssl.OP_NO_TLSv1_1
-                ssl_ctx.load_cert_chain(parameters['ssl_certificate_file'],
-                                       parameters['ssl_key_file'])
+                ssl_ctx.load_cert_chain(parameters['ssl_certificate_file'],parameters['ssl_key_file'])
                 v_cherrypy_config['server.ssl_module'] = 'builtin'
                 v_cherrypy_config['server.ssl_certificate'] = parameters['ssl_certificate_file']
                 v_cherrypy_config['server.ssl_private_key'] = parameters['ssl_key_file']
@@ -517,7 +533,7 @@ class DjangoApplication(object):
             cherrypy.config.update(v_cherrypy_config)
 
 
-            print ("Starting server {0} at {1}:{2}{3}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port),OmniDB.settings.PATH),flush=True)
+            print("Starting server {0} at {1}:{2}{3}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port),OmniDB.settings.PATH),flush=True)
             logger.info("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
 
             # Startup
@@ -526,12 +542,12 @@ class DjangoApplication(object):
             cherrypy.engine.start()
 
             if not app_version:
-                print ("Open OmniDB in your favorite browser",flush=True)
+                print("Open OmniDB in your favorite browser",flush=True)
                 if platform.system() != 'Windows':
-                    print ("Press Ctrl+C to exit",flush=True)
+                    print("Press Ctrl+C to exit",flush=True)
             else:
                 #Sending response to electron app
-                print ("http://localhost:{0}/omnidb_login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
+                print("http://localhost:{0}/omnidb_login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
 
             cherrypy.engine.block()
             cherrypy.engine.exit()

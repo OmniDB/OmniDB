@@ -16,8 +16,8 @@ PWD_TIMEOUT_TOTAL = 1800
 IS_SSL                 = False
 SSL_CERTIFICATE_FILE   = '/path/to/cert_file'
 SSL_KEY_FILE           = '/path/to/key_file'
-#SESSION_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE    = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE    = True
 
 # Trusted origins, use this parameter if OmniDB is configured with SSL and is being accessed by another domain
 CSRF_TRUSTED_ORIGINS = []
@@ -34,9 +34,9 @@ SESSION_COOKIE_NAME = 'omnidb_sessionid'
 # CSRF cookie name
 CSRF_COOKIE_NAME = 'omnidb_csrftoken'
 
-### PostgreSQL Database Backend ################################################
+# ## PostgreSQL Database Backend ################################################
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #        'NAME': 'dbname',
@@ -45,22 +45,22 @@ CSRF_COOKIE_NAME = 'omnidb_csrftoken'
 #        'HOST': '127.0.0.1',
 #        'PORT': '5432',
 #    }
-#}
+# }
 
-### LDAP Authentication ########################################################
+# ## LDAP Authentication ########################################################
 
-#import ldap
-#import django_auth_ldap.config
-#from django_auth_ldap.config import LDAPSearch
+# import ldap
+# import django_auth_ldap.config
+# from django_auth_ldap.config import LDAPSearch
 
-#AUTH_LDAP_SERVER_URI = 'SERVER'
-#AUTH_LDAP_BIND_DN = "uid=example,dc=example,dc=com"
-#AUTH_LDAP_BIND_PASSWORD = "password"
-#AUTH_LDAP_USER_SEARCH = django_auth_ldap.config.LDAPSearch(
+# AUTH_LDAP_SERVER_URI = 'SERVER'
+# AUTH_LDAP_BIND_DN = "uid=example,dc=example,dc=com"
+# AUTH_LDAP_BIND_PASSWORD = "password"
+# AUTH_LDAP_USER_SEARCH = django_auth_ldap.config.LDAPSearch(
 #            "uid=example,dc=example,dc=com", ldap.SCOPE_SUBTREE, "uid=%(user)s"
 #            )
 
-#AUTHENTICATION_BACKENDS = [
+# AUTHENTICATION_BACKENDS = [
 #    'django_auth_ldap.backend.LDAPBackend',
 #    'django.contrib.auth.backends.ModelBackend'
-#]
+# ]

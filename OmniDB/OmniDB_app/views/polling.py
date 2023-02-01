@@ -15,19 +15,19 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB.startup import clean_temp_folder
 
 from enum import IntEnum
-from datetime import datetime
 from django.utils.timezone import make_aware
 from OmniDB import settings
 import sys
+import os
 import sqlparse
 
 import paramiko
 import OmniDB_app.include.custom_paramiko_expect as custom_paramiko_expect
 
 from django.contrib.auth.models import User
-from OmniDB_app.models.main import *
+from OmniDB_app.models.main import Tab, QueryHistory, Connection, ConsoleHistory
 
-from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.memory_objects import clear_client_object, get_client_object, close_tab_handler, create_tab_object, get_database_tab_object
 
 import traceback
 
@@ -35,43 +35,43 @@ import logging
 logger = logging.getLogger('OmniDB_app.QueryServer')
 
 class requestType(IntEnum):
-  Login          = 0
-  Query          = 1
-  Execute        = 2
-  Script         = 3
-  QueryEditData  = 4
-  SaveEditData   = 5
-  CancelThread   = 6
-  Debug          = 7
-  CloseTab       = 8
-  AdvancedObjectSearch     = 9
-  Console        = 10
-  Terminal       = 11
-  Ping           = 12
+    Login          = 0
+    Query          = 1
+    Execute        = 2
+    Script         = 3
+    QueryEditData  = 4
+    SaveEditData   = 5
+    CancelThread   = 6
+    Debug          = 7
+    CloseTab       = 8
+    AdvancedObjectSearch     = 9
+    Console        = 10
+    Terminal       = 11
+    Ping           = 12
 
 class response(IntEnum):
-  LoginResult         = 0
-  QueryResult         = 1
-  QueryEditDataResult = 2
-  SaveEditDataResult  = 3
-  SessionMissing      = 4
-  PasswordRequired    = 5
-  QueryAck            = 6
-  MessageException    = 7
-  DebugResponse       = 8
-  RemoveContext       = 9
-  AdvancedObjectSearchResult    = 10
-  ConsoleResult       = 11
-  TerminalResult      = 12
-  Pong                = 13
+    LoginResult         = 0
+    QueryResult         = 1
+    QueryEditDataResult = 2
+    SaveEditDataResult  = 3
+    SessionMissing      = 4
+    PasswordRequired    = 5
+    QueryAck            = 6
+    MessageException    = 7
+    DebugResponse       = 8
+    RemoveContext       = 9
+    AdvancedObjectSearchResult    = 10
+    ConsoleResult       = 11
+    TerminalResult      = 12
+    Pong                = 13
 
 class debugState(IntEnum):
-  Initial  = 0
-  Starting = 1
-  Ready    = 2
-  Step     = 3
-  Finished = 4
-  Cancel   = 5
+    Initial  = 0
+    Starting = 1
+    Ready    = 2
+    Step     = 3
+    Finished = 4
+    Cancel   = 5
 
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2):
@@ -80,14 +80,12 @@ class StoppableThread(threading.Thread):
     def stop(self):
         self.cancel = True
 
-import time
-
 def clear_client(request):
     clear_client_object(
         p_client_id = request.session.session_key
     )
     return JsonResponse(
-    {}
+        {}
     )
 
 def client_keep_alive(request):
@@ -95,7 +93,7 @@ def client_keep_alive(request):
     client_object['last_update'] = datetime.now()
 
     return JsonResponse(
-    {}
+        {}
     )
 
 def long_polling(request):
@@ -120,7 +118,7 @@ def long_polling(request):
     if startup:
         try:
             client_object['polling_lock'].release()
-        except:
+        except Exception:
             None
 
     # Acquire client polling lock to read returning data
@@ -136,9 +134,9 @@ def long_polling(request):
     client_object['returning_data_lock'].release()
 
     return JsonResponse(
-    {
-        'returning_rows': v_returning_data
-    }
+        {
+            'returning_rows': v_returning_data
+        }
     )
 
 def queue_response(p_client_object, p_data):
@@ -180,7 +178,7 @@ def create_request(request):
     # Release lock to avoid dangling ajax polling requests
     try:
         client_object['polling_lock'].release()
-    except:
+    except Exception:
         None
 
     #Cancel thread
@@ -204,7 +202,7 @@ def create_request(request):
                     thread_data['omnidatabase'].v_connection.Cancel(False)
         except Exception as exc:
             print(str(exc))
-            None;
+            None
 
     #Close Tab
     elif v_code == requestType.CloseTab:
@@ -221,7 +219,7 @@ def create_request(request):
     else:
 
         #Check database prompt timeout
-        if v_data['v_db_index']!=None:
+        if v_data['v_db_index'] is not None:
             v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
             if v_timeout['timeout']:
                 v_return['v_code'] = response.PasswordRequired
@@ -229,7 +227,7 @@ def create_request(request):
                 v_return['v_data'] = v_timeout['message']
                 queue_response(client_object,v_return)
                 return JsonResponse(
-                {}
+                    {}
                 )
 
         if v_code == requestType.Terminal:
@@ -241,7 +239,7 @@ def create_request(request):
                 try:
                     tab_object['last_update'] = datetime.now()
                     tab_object['terminal_object'].send(v_data['v_cmd'])
-                except:
+                except Exception:
                     None
             except Exception as exc:
                 tab_object = create_tab_object(
@@ -313,7 +311,7 @@ def create_request(request):
                         'thread': None,
                         'omnidatabase': None,
                         'inserted_tab': False
-                     }
+                    }
                 )
 
             try:
@@ -332,7 +330,7 @@ def create_request(request):
                 v_return['v_data'] = str(exc)
                 queue_response(client_object,v_return)
                 return JsonResponse(
-                {}
+                    {}
                 )
 
             v_data['v_context_code'] = v_context_code
@@ -436,9 +434,10 @@ def create_request(request):
                     tab_object['port'] = v_database_debug.v_connection.ExecuteScalar('show port')
                 except Exception as exc:
                     logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                    v_response = {}
                     v_response['v_code'] = response.MessageException
                     v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-                    queue_response(v_client_object,v_response)
+                    queue_response(client_object,v_response)
 
             v_data['v_context_code'] = v_context_code
             v_data['v_tab_object'] = tab_object
@@ -450,7 +449,7 @@ def create_request(request):
             t.start()
 
     return JsonResponse(
-    {}
+        {}
     )
 
 def thread_debug(self,args):
@@ -463,7 +462,7 @@ def thread_debug(self,args):
     v_state = args['v_state']
     v_tab_id = args['v_tab_id']
     v_tab_object = args['v_tab_object']
-    v_client_object  = args['v_client_object']
+    v_client_object = args['v_client_object']
     v_database_debug = v_tab_object['omnidatabase_debug']
     v_database_control = v_tab_object['omnidatabase_control']
 
@@ -490,7 +489,7 @@ def thread_debug(self,args):
             v_tab_object['debug_pid'] = pid
 
             #Run thread that will execute the function
-            t = StoppableThread(thread_debug_run_func,{ 'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function'], 'v_type': args['v_type'], 'v_client_object': v_client_object})
+            t = StoppableThread(thread_debug_run_func,{'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function'], 'v_type': args['v_type'], 'v_client_object': v_client_object})
             v_tab_object['thread'] = t
             #t.setDaemon(True)
             t.start()
@@ -499,7 +498,7 @@ def thread_debug(self,args):
 
             v_lineno = None
             #wait for context to be ready or thread ends
-            while v_lineno == None and t.isAlive():
+            while v_lineno is None and t.isAlive():
                 time.sleep(0.5)
                 v_lineno = v_database_control.v_connection.ExecuteScalar('select lineno from omnidb.contexts where pid = {0} and lineno is not null'.format(pid))
 
@@ -511,10 +510,10 @@ def thread_debug(self,args):
 
                 v_response['v_code'] = response.DebugResponse
                 v_response['v_data'] = {
-                'v_state': debugState.Ready,
-                'v_remove_context': False,
-                'v_variables': v_variables.Rows,
-                'v_lineno': v_lineno
+                    'v_state': debugState.Ready,
+                    'v_remove_context': False,
+                    'v_variables': v_variables.Rows,
+                    'v_lineno': v_lineno
                 }
                 queue_response(v_client_object,v_response)
 
@@ -533,10 +532,10 @@ def thread_debug(self,args):
                 if (v_context_data.Rows[0][1]!='True'):
                     v_response['v_code'] = response.DebugResponse
                     v_response['v_data'] = {
-                    'v_state': debugState.Ready,
-                    'v_remove_context': True,
-                    'v_variables': v_variables.Rows,
-                    'v_lineno': v_context_data.Rows[0][0]
+                        'v_state': debugState.Ready,
+                        'v_remove_context': True,
+                        'v_variables': v_variables.Rows,
+                        'v_lineno': v_context_data.Rows[0][0]
                     }
                     queue_response(v_client_object,v_response)
                 else:
@@ -581,13 +580,13 @@ def thread_debug_run_func(self,args):
         'v_data': 1
     }
     v_tab_object = args['v_tab_object']
-    v_client_object  = args['v_client_object']
+    v_client_object = args['v_client_object']
     v_database_debug = v_tab_object['omnidatabase_debug']
     v_database_control = v_tab_object['omnidatabase_control']
 
     try:
         #enable debugger for current connection
-        v_conn_string = "host=''localhost'' port={0} dbname=''{1}'' user=''{2}''".format(v_tab_object['port'],v_database_debug.v_service,v_database_debug.v_user);
+        v_conn_string = "host=''localhost'' port={0} dbname=''{1}'' user=''{2}''".format(v_tab_object['port'],v_database_debug.v_service,v_database_debug.v_user)
 
         v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_conn_string))
 
@@ -767,7 +766,7 @@ def thread_terminal(self,args):
 
             except Exception as exc:
                 transport = v_terminal_ssh_client.get_transport()
-                if transport == None or transport.is_active() == False:
+                if transport is None or transport.is_active() is False:
                     break
                 if 'EOF' in str(exc):
                     break
@@ -940,7 +939,7 @@ def thread_query(self,args):
                     #if len(v_data1.Rows) < 50 and v_autocommit:
                     #    try:
                     #        v_database.v_connection.Close()
-                    #    except:
+                    #    except Exception:
                     #        pass
 
                 elif v_mode==2 or v_all_data:
@@ -1066,7 +1065,7 @@ def thread_query(self,args):
                     if len(v_notices) > 0:
                         for v_notice in v_notices:
                             v_notices_text += v_notice.replace('\n','<br/>')
-                except:
+                except Exception:
                     v_notices = []
                     v_notices_text = ''
 
@@ -1096,14 +1095,16 @@ def thread_query(self,args):
 
         #Log to history
         if v_mode==0 and v_log_query:
-            LogHistory(v_session.v_user_id,
-                    v_session.v_user_name,
-                    v_sql,
-                    log_start_time,
-                    log_end_time,
-                    v_duration,
-                    log_status,
-                    v_database.v_conn_id)
+            LogHistory(
+                v_session.v_user_id,
+                v_session.v_user_name,
+                v_sql,
+                log_start_time,
+                log_end_time,
+                v_duration,
+                log_status,
+                v_database.v_conn_id
+            )
 
         #if mode=0 save tab
         if v_mode==0 and v_tab_object['tab_db_id'] and v_log_query:
@@ -1188,7 +1189,7 @@ def thread_console(self,args):
 
                         v_database.v_connection.ClearNotices()
                         v_database.v_connection.v_start=True
-                        v_data1 = v_database.v_connection.Special(sql);
+                        v_data1 = v_database.v_connection.Special(sql)
 
                         v_notices = v_database.v_connection.GetNotices()
                         v_notices_text = ''
@@ -1281,7 +1282,7 @@ def thread_console(self,args):
         except Exception as exc:
             #try:
             #    v_database.v_connection.Close()
-            #except:
+            #except Exception:
             #    pass
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
@@ -1331,10 +1332,10 @@ def thread_query_edit_data(self,args):
         v_session = args['v_session']
         v_database = args['v_database']
 
-        v_table          = args['v_table']
+        v_table = args['v_table']
 
         if v_database.v_has_schema:
-            v_schema         = args['v_schema']
+            v_schema = args['v_schema']
 
         v_filter         = args['v_filter']
         v_count          = args['v_count']
@@ -1375,7 +1376,7 @@ def thread_query_edit_data(self,args):
 
                 v_row_data.append('')
                 for v_col in v_data1.Columns:
-                    if v_row[v_col] == None:
+                    if v_row[v_col] is None:
                         v_row_data.append('[null]')
                     else:
                         v_row_data.append(str(v_row[v_col]))
@@ -1406,11 +1407,11 @@ def thread_save_edit_data(self,args):
         v_session = args['v_session']
         v_database = args['v_database']
 
-        v_table          = args['v_table']
+        v_table = args['v_table']
 
         if v_database.v_has_schema:
-            v_schema         = args['v_schema']
-        
+            v_schema = args['v_schema']
+
         v_data_rows      = args['v_data_rows']
         v_rows_info      = args['v_rows_info']
         v_pk_info        = args['v_pk_info']
@@ -1446,7 +1447,7 @@ def thread_save_edit_data(self,args):
                     try:
                         v_type_details = v_database.v_data_types[v_pk['v_type']]
                     # Type not found
-                    except:
+                    except Exception:
                         v_type_details = {
                             'quoted': True
                         }
@@ -1492,7 +1493,7 @@ def thread_save_edit_data(self,args):
                     v_first = False
 
                     v_value = ''
-                    if v_data_rows[i][j] != None:
+                    if v_data_rows[i][j] is not None:
                         v_value = v_data_rows[i][j]
 
                     v_value = v_value.replace("'","''")
@@ -1501,7 +1502,7 @@ def thread_save_edit_data(self,args):
                     try:
                         v_type_details = v_database.v_data_types[v_columns[j-1]['v_type']]
                     # Type not found
-                    except:
+                    except Exception:
                         v_type_details = {
                             'quoted': True
                         }
@@ -1542,7 +1543,7 @@ def thread_save_edit_data(self,args):
                     v_first = False
 
                     v_value = ''
-                    if v_data_rows[i][v_col_index+1] != None:
+                    if v_data_rows[i][v_col_index+1] is not None:
                         v_value = v_data_rows[i][v_col_index+1]
 
                     v_value = v_value.replace("'","''")
@@ -1553,7 +1554,7 @@ def thread_save_edit_data(self,args):
                     try:
                         v_type_details = v_database.v_data_types[v_columns[v_col_index]['v_type']]
                     # Type not found
-                    except:
+                    except Exception:
                         v_type_details = {
                             'quoted': True
                         }
@@ -1578,7 +1579,7 @@ def thread_save_edit_data(self,args):
                     try:
                         v_type_details = v_database.v_data_types[v_pk['v_type']]
                     # Type not found
-                    except:
+                    except Exception:
                         v_type_details = {
                             'quoted': True
                         }

@@ -78,19 +78,19 @@ class Oracle:
         self.v_user = p_user.upper()
         self.v_active_user = p_user.upper()
 
-        #try to get info from connection string
+        # try to get info from connection string
         if p_conn_string!='' and p_parse_conn_string:
             try:
                 parsed = urlparse(p_conn_string)
-                if parsed.port!=None:
+                if parsed.port is not None:
                     self.v_active_port = str(parsed.port)
-                if parsed.hostname!=None:
+                if parsed.hostname is not None:
                     self.v_active_server = parsed.hostname
-                if parsed.username!=None:
+                if parsed.username is not None:
                     self.v_active_user = parsed.username
-                if parsed.password!=None and p_password == '':
+                if parsed.password is not None and p_password == '':
                     self.v_password = parsed.password
-                if parsed.query!=None:
+                if parsed.query is not None:
                     self.v_conn_string_query = parsed.query
                 parsed_database = parsed.path
                 if len(parsed_database)>1:
@@ -145,7 +145,7 @@ class Oracle:
         self.v_drop_pk_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
         self.v_drop_fk_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
         self.v_drop_unique_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
-        self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)";
+        self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)"
         self.v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)"
         self.v_drop_index_command = "drop index #p_schema_name#.#p_index_name#"
         self.v_update_rules = [
@@ -153,8 +153,8 @@ class Oracle:
         ]
         self.v_delete_rules = [
             "NO ACTION",
-			"SET NULL",
-			"CASCADE"
+            "SET NULL",
+            "CASCADE"
         ]
         self.v_reserved_words = []
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
@@ -164,23 +164,23 @@ class Oracle:
     def lock_required(function):
         def wrap(self, *args, **kwargs):
             try:
-                if self.v_lock != None:
+                if self.v_lock is not None:
                     self.v_lock.acquire()
-            except:
+            except Exception:
                 None
             try:
                 r = function(self, *args, **kwargs)
-            except:
+            except Exception:
                 try:
-                    if self.v_lock != None:
+                    if self.v_lock is not None:
                         self.v_lock.release()
-                except:
+                except Exception:
                     None
                 raise
             try:
-                if self.v_lock != None:
+                if self.v_lock is not None:
                     self.v_lock.release()
-            except:
+            except Exception:
                 None
             return r
         wrap.__doc__ = function.__doc__
@@ -621,7 +621,7 @@ class Oracle:
             except Spartacus.Database.Exception as exc:
                 try:
                     self.v_connection.Cancel()
-                except:
+                except Exception:
                     pass
                 raise exc
         else:
@@ -641,11 +641,11 @@ class Oracle:
             )
             {3}
         '''.format(
-                p_column_list,
-                p_table,
-                p_filter,
-                v_limit
-            ), True
+            p_column_list,
+            p_table,
+            p_filter,
+            v_limit
+        ), True
         )
 
     @lock_required
@@ -813,13 +813,13 @@ class Oracle:
         return '''CREATE OR REPLACE VIEW {0}.{1} AS
 {2}
 '''.format(p_schema, p_view,
-        self.v_connection.ExecuteScalar('''
+            self.v_connection.ExecuteScalar('''
                 select text
                 from all_views
                 where (case when upper(replace(owner, ' ', '')) <> owner then '"' || owner || '"' else owner end) = '{0}'
                   and (case when upper(replace(view_name, ' ', '')) <> view_name then '"' || view_name || '"' else view_name end) = '{1}'
             '''.format(v_schema, p_view)
-    ))
+            ))
 
     def TemplateCreateRole(self):
         return Template('''CREATE { ROLE | USER } name
@@ -1072,8 +1072,7 @@ ADD name data_type
         return Template('''ALTER TABLE #table_name#
 --MODIFY #column_name# { datatype | DEFAULT expr | [ NULL | NOT NULL ]}
 --RENAME COLUMN #column_name# TO new_name
-'''
-)
+''')
 
     def TemplateDropColumn(self):
         return Template('''ALTER TABLE #table_name#

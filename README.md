@@ -57,7 +57,6 @@
 
 
 
-**Website**: https://omnidb.org
 
 **Full Documentation**: https://omnidb.readthedocs.io
 
